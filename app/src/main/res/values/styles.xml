@@ -1,0 +1,40 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorPrimaryLight</item>
+        <item name="android:textViewStyle">@style/RegularTextStyle</item>
+    </style>
+
+    <style name="toolBarTheme" parent="Theme.AppCompat.Light">
+        <item name="android:fontFamily">@font/heading</item>
+        <item name="android:textSize">40sp</item>
+    </style>
+
+    <style name="RegularTextStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">@font/regular</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="BottomNavDesign" parent="Widget.Design.BottomNavigationView">
+        <item name="android:fontFamily">@font/heading</item>
+        <item name="android:textSize">20sp</item>
+        <item name="itemIconTint">@color/white</item>
+        <item name="itemTextColor">@color/white</item>
+        <item name="android:background">@color/colorPrimary</item>
+    </style>
+
+    <style name="Regular" parent="android:Widget.EditText">
+        <item name="android:fontFamily">@font/regular</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="ColorAnimation">
+        <item name="android:windowEnterAnimation">@anim/entry_animation</item>
+        <item name="android:windowExitAnimation">@anim/exit_animation</item>
+    </style>
+
+</resources>
