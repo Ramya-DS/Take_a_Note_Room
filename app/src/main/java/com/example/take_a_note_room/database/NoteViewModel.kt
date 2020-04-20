@@ -18,18 +18,10 @@ class NoteViewModel(app: Application) : AndroidViewModel(app) {
         val notesDao = TakeANote.getDatabase(app, viewModelScope).noteDao()
         repository = NoteRepository(notesDao)
         allNotes = repository.allNote
-
-    }
-
-    fun insert(note: NoteClass) = viewModelScope.launch(Dispatchers.IO) {
-        repository.insert(note)
-    }
-
-    fun update(note: NoteClass) = viewModelScope.launch(Dispatchers.IO) {
-        repository.update(note)
     }
 
     fun delete(note: NoteClass) = viewModelScope.launch(Dispatchers.IO) {
         repository.delete(note)
     }
+
 }

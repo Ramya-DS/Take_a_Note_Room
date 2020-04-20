@@ -18,5 +18,8 @@ interface NoteDao {
 
     @Delete
     suspend fun delete(note: NoteClass)
+
+    @Query(value = "SELECT * from AllNotes where title LIKE :search OR content LIKE :search")
+    fun search(search: String): LiveData<List<NoteClass>>
 }
 

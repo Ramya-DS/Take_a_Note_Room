@@ -1,7 +1,6 @@
 package com.example.take_a_note_room
 
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -12,6 +11,7 @@ import android.view.animation.AnimationUtils
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.take_a_note_room.database.NoteViewModel
@@ -21,16 +21,19 @@ import java.lang.ref.WeakReference
 class NotesRecyclerFragment : Fragment(), OnNoteSelectedListener {
 
     companion object {
-        fun newInstance(): NotesRecyclerFragment {
+        fun newInstance(search: Boolean): NotesRecyclerFragment {
             val fragment = NotesRecyclerFragment()
             val bundle = Bundle()
+            bundle.putBoolean("search", search)
             fragment.arguments = bundle
             return fragment
         }
     }
 
     private lateinit var noteViewModel: NoteViewModel
-    lateinit var rootViewRef: WeakReference<View>
+    private lateinit var rootViewRef: WeakReference<View>
+    lateinit var notesRecyclerView: RecyclerView
+    var search = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,13 +41,15 @@ class NotesRecyclerFragment : Fragment(), OnNoteSelectedListener {
     ): View? {
         val rootView = inflater.inflate(R.layout.fragment_notes_recycler, container, false)
         rootViewRef = WeakReference(rootView)
-        val notesRecyclerView: RecyclerView = rootView.findViewById(R.id.notes_recycler)
+        notesRecyclerView = rootView.findViewById(R.id.notes_recycler)
         notesRecyclerView.layoutManager = LinearLayoutManager(context)
         notesRecyclerView.layoutAnimation =
             AnimationUtils.loadLayoutAnimation(
                 context?.applicationContext,
                 R.anim.recycler_dropdown
             )
+
+        ItemTouchHelper(itemTouchHelper).attachToRecyclerView(notesRecyclerView)
 
         notesRecyclerView.setHasFixedSize(false)
         val adapter = NotesAdapter(context!!, this)
@@ -57,64 +62,57 @@ class NotesRecyclerFragment : Fragment(), OnNoteSelectedListener {
 
         Log.d("viewmodel", "$noteViewModel ")
 
-        noteViewModel.allNotes.observe(viewLifecycleOwner, Observer { note ->
-            Log.d("inside observer", " ")
-            note?.let {
-                Log.d("setNotes", " ")
-                adapter.setNotes(it)
-                notesRecyclerView.scheduleLayoutAnimation()
-            }
+        if (!search) {
+            noteViewModel.allNotes.observe(viewLifecycleOwner, Observer { note ->
+                Log.d("inside observer", " ")
+                note?.let {
+                    Log.d("setNotes", " ")
+                    adapter.setNotes(it)
+                }
+            })
+        }
 
-        })
         return rootView
 
     }
 
     override fun onNoteSelected(note: NoteClass) {
-        val fragment = NoteFragment.newInstance(note, false)
-        fragment.setTargetFragment(this, 2)
-        fragmentManager!!.beginTransaction()
-            .setCustomAnimations(R.anim.fragment_open_enter, R.anim.exit_fade)
-            .replace(R.id.content_fragment, fragment)
-            .addToBackStack("EDIT").commit()
+
+        val intent = Intent(context, NoteActivity::class.java)
+        intent.putExtra("id", note.id)
+        intent.putExtra("title", note.title)
+        intent.putExtra("content", note.content)
+        intent.putExtra("color", note.color)
+        startActivity(intent)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        var note: NoteClass
 
-
-        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
-            data?.let {
-                note = NoteClass(
-                    title = it.getStringExtra("title")!!,
-                    content = it.getStringExtra("content"),
-                    color = it.getIntExtra("color", BackgroundColor.random())
-                )
-                noteViewModel.insert(note)
+    private val itemTouchHelper =
+        object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return true
             }
 
-        } else if (requestCode == 2 && resultCode == Activity.RESULT_OK) {
-            data?.let {
-                note = NoteClass(
-                    id = it.getIntExtra("id", 0),
-                    title = it.getStringExtra("title")!!,
-                    content = it.getStringExtra("content"),
-                    color = it.getIntExtra("color", BackgroundColor.random())
-                )
-                noteViewModel.update(note)
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val note = (viewHolder as NotesAdapter.NoteViewHolder).note
+
+                note?.let {
+                    noteViewModel.delete(it)
+                    if (!search)
+                        notesRecyclerView.adapter?.notifyDataSetChanged()
+                }
             }
-        } else if (requestCode == 3 && resultCode == Activity.RESULT_OK) {
-            data?.let {
-                note = NoteClass(
-                    id = it.getIntExtra("id", 0),
-                    title = it.getStringExtra("title")!!,
-                    content = it.getStringExtra("content"),
-                    color = it.getIntExtra("color", BackgroundColor.random())
-                )
-                noteViewModel.delete(note)
-            }
+
         }
-        super.onActivityResult(requestCode, resultCode, data)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        search = arguments?.getBoolean("search") ?: false
     }
+
 
 }

@@ -25,6 +25,7 @@ class ColorPickerFragment : DialogFragment() {
         var value: Array<BackgroundColor>? = BackgroundColor.values()
     }
 
+
     var mOnColorSelectedListener: OnColorSelectedListener? = null
 
     override fun onCreateView(

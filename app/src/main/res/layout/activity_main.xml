@@ -15,11 +15,12 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/colorPrimary"
+            app:collapseIcon="@drawable/go_icon"
+            app:menu="@menu/menu_toolbar"
             app:title="Take a Note"
             app:titleMargin="7dp"
             app:titleTextAppearance="@font/heading"
-            app:titleTextColor="@color/white"
-            app:menu="@menu/menu_toolbar"/>
+            app:titleTextColor="@color/white" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <FrameLayout

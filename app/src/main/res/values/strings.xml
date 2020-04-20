@@ -2,4 +2,5 @@
     <string name="app_name">Take_a_Note_Room</string>
     <string name="enter_the_title_here">Enter the title here..</string>
     <string name="type_here">Type here..</string>
+    <string name="search_here">Search here...</string>
 </resources>

@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".NoteFragment">
+    android:orientation="vertical">
 
     <EditText
         android:id="@+id/title"
@@ -23,10 +21,10 @@
         android:layout_height="fill_parent"
         android:layout_weight="1"
         android:fontFamily="@font/regular"
+        android:gravity="top"
         android:hint="@string/type_here"
         android:inputType="textMultiLine"
-        android:isScrollContainer="true"
-        android:gravity="top"/>
+        android:isScrollContainer="true" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/note_bottomNavigationView"
