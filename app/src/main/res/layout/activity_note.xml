@@ -21,7 +21,7 @@
             app:menu="@menu/menu_toolbar"
             app:title="Take a Note"
             app:titleMargin="7dp"
-            app:titleTextAppearance="@font/heading"
+            app:titleTextAppearance="@font/heading_font"
             app:titleTextColor="@color/white" />
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -29,22 +29,24 @@
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/regular"
         android:hint="@string/enter_the_title_here"
         android:inputType="textMultiLine"
         android:isScrollContainer="true"
-        android:maxLines="5" />
+        style="@style/Regular"
+        android:maxLines="5"
+        android:textSize="16sp" />
 
     <EditText
         android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
         android:layout_weight="1"
-        android:fontFamily="@font/regular"
+        android:gravity="top"
+        style="@style/Regular"
         android:hint="@string/type_here"
         android:inputType="textMultiLine"
         android:isScrollContainer="true"
-        android:gravity="top"/>
+        android:textSize="16sp" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/note_bottomNavigationView"

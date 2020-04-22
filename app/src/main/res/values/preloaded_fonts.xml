@@ -2,6 +2,8 @@
 <resources>
     <array name="preloaded_fonts" translatable="false">
         <item>@font/heading</item>
+        <item>@font/heading_font</item>
         <item>@font/regular</item>
+        <item>@font/regular_font</item>
     </array>
 </resources>

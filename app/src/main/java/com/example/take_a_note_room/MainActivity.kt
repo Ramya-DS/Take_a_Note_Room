@@ -69,6 +69,7 @@ class MainActivity : AppCompatActivity() {
                 addNote.hide()
                 searchFragment = NotesRecyclerFragment.newInstance(true)
                 supportFragmentManager.beginTransaction()
+                    .setCustomAnimations(R.anim.fragment_fade_enter,R.anim.fragment_close_exit)
                     .replace(R.id.content_fragment, searchFragment!!)
                     .addToBackStack("Search").commit()
             }

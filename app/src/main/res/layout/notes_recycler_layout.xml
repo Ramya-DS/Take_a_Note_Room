@@ -15,6 +15,7 @@
 
         <TextView
             android:id="@+id/title"
+            style="@style/RegularTextStyle"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginStart="5dp"
@@ -23,10 +24,13 @@
             android:maxLines="1"
             android:padding="5dp"
             android:scrollbars="horizontal"
-            android:textColor="@color/colorPrimaryDark" />
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/content"
+            style="@style/RegularTextStyle"
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:layout_marginStart="5dp"

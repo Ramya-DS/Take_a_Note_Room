@@ -10,30 +10,29 @@
     </style>
 
     <style name="toolBarTheme" parent="Theme.AppCompat.Light">
-        <item name="android:fontFamily">@font/heading</item>
-        <item name="android:textSize">37sp</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:fontFamily">@font/heading_font</item>
         <item name="searchViewStyle">@style/MySearchViewStyle</item>
-        <item name="editTextStyle">@style/editTextStyle</item>
         <item name="android:editTextColor">@color/white</item>
         <item name="android:textColorHint">@color/white</item>
     </style>
 
     <style name="RegularTextStyle" parent="android:Widget.TextView">
-        <item name="android:fontFamily">@font/regular</item>
-        <item name="android:textSize">20sp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">@font/regular_font</item>
     </style>
 
     <style name="BottomNavDesign" parent="Widget.Design.BottomNavigationView">
-        <item name="android:fontFamily">@font/heading</item>
-        <item name="android:textSize">20sp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">@font/heading_font</item>
         <item name="itemIconTint">@color/white</item>
         <item name="itemTextColor">@color/white</item>
         <item name="android:background">@color/colorPrimary</item>
     </style>
 
     <style name="Regular" parent="android:Widget.EditText">
-        <item name="android:fontFamily">@font/regular</item>
-        <item name="android:textSize">20sp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">@font/regular_font</item>
     </style>
 
     <style name="ColorAnimation">
@@ -49,8 +48,5 @@
         <item name="searchHintIcon">@null</item>
     </style>
 
-    <style name="editTextStyle" parent="Widget.AppCompat.EditText">
-        <item name="android:textSize">13sp</item>
-    </style>
 
 </resources>
