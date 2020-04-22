@@ -85,6 +85,10 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
+                newText?.let {
+                    queryString = it
+                    searchDb()
+                }
                 return false
             }
         })
