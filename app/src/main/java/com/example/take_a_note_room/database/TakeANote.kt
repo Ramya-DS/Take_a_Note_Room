@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.example.take_a_note_room.NoteClass
 import kotlinx.coroutines.CoroutineScope
 
-@Database(entities = [NoteClass::class], version = 1, exportSchema = false)
+@Database(entities = [NoteClass::class], version = 2, exportSchema = false)
 abstract class TakeANote : RoomDatabase() {
     abstract fun noteDao(): NoteDao
 
@@ -25,7 +25,7 @@ abstract class TakeANote : RoomDatabase() {
                     context.applicationContext,
                     TakeANote::class.java,
                     "Note_database"
-                ).build()
+                ).fallbackToDestructiveMigration().build()
                 INSTANCE = instance
                 return instance
             }

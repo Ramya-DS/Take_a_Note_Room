@@ -1,6 +1,8 @@
 package com.example.take_a_note_room
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -14,7 +16,7 @@ class NoteActivity : AppCompatActivity(), OnColorSelectedListener {
     private lateinit var currentNote: NoteClass
     private lateinit var viewModel: SingleNoteViewModel
     private var add: Boolean = false
-    private lateinit var childFragment: WeakReference<ColorPickerFragment>
+    private var childFragment: WeakReference<ColorPickerFragment>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,11 +27,15 @@ class NoteActivity : AppCompatActivity(), OnColorSelectedListener {
                 it.getInt("id"),
                 it.getString("title")!!,
                 it.getString("content"),
-                it.getInt("color")
+                it.getInt("color"),
+                it.getString("userId")!!
             )
+            supportFragmentManager.findFragmentByTag("COLORPICKER")?.let { frag ->
+                childFragment = WeakReference(frag as ColorPickerFragment)
+            }
         }
-
-        getCurrentNote()
+        if (savedInstanceState == null)
+            getCurrentNote()
         initialiseViewModel()
 
         val title: EditText = findViewById(R.id.title)
@@ -59,7 +65,7 @@ class NoteActivity : AppCompatActivity(), OnColorSelectedListener {
                 }
                 R.id.color -> {
                     childFragment = WeakReference(ColorPickerFragment.newInstance())
-                    childFragment.get()!!.show(supportFragmentManager, "COLORPICKER")
+                    childFragment!!.get()!!.show(supportFragmentManager, "COLORPICKER")
                     true
                 }
                 else -> {
@@ -76,7 +82,8 @@ class NoteActivity : AppCompatActivity(), OnColorSelectedListener {
                 it.getIntExtra("id", 0),
                 it.getStringExtra("title")!!,
                 it.getStringExtra("content"),
-                it.getIntExtra("color", BackgroundColor.random())
+                it.getIntExtra("color", BackgroundColor.random()),
+                it.getStringExtra("userId")!!
             )
         }
 
@@ -94,7 +101,7 @@ class NoteActivity : AppCompatActivity(), OnColorSelectedListener {
     }
 
     override fun onColorSelected(color: Int) {
-        childFragment.get()!!.dismiss()
+        childFragment?.get()!!.dismiss()
         currentNote.color = color
         changeBackgroundColor(color)
 
@@ -112,6 +119,13 @@ class NoteActivity : AppCompatActivity(), OnColorSelectedListener {
             it.putString("title", currentNote.title)
             it.putString("content", currentNote.content)
             it.putInt("color", currentNote.color)
+            it.putString("userId", currentNote.userName)
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        Log.d("NotesActivity", "Inside onActivityResult")
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d("Activity", "After super function called")
     }
 }

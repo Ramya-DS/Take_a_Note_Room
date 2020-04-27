@@ -18,8 +18,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="@color/colorPrimary"
             app:collapseIcon="@drawable/go_icon"
-            app:menu="@menu/menu_toolbar"
-            app:title="Take a Note"
+            app:title="TAKE A NOTE"
             app:titleMargin="7dp"
             app:titleTextAppearance="@font/heading_font"
             app:titleTextColor="@color/white" />

@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.Fragment
@@ -27,10 +28,11 @@ import java.lang.ref.WeakReference
 class NotesRecyclerFragment : Fragment(), OnNoteSelectedListener {
 
     companion object {
-        fun newInstance(search: Boolean): NotesRecyclerFragment {
+        fun newInstance(search: Boolean, userId: String): NotesRecyclerFragment {
             val fragment = NotesRecyclerFragment()
             val bundle = Bundle()
             bundle.putBoolean("search", search)
+            bundle.putString("userId", userId)
             fragment.arguments = bundle
             return fragment
         }
@@ -40,12 +42,21 @@ class NotesRecyclerFragment : Fragment(), OnNoteSelectedListener {
     private lateinit var rootViewRef: WeakReference<View>
     lateinit var notesRecyclerView: RecyclerView
     var search = false
-    var setAnimations = true
+    private var setAnimations = true
+    lateinit var adapter: NotesAdapter
+    lateinit var userId: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        savedInstanceState?.let {
+            setAnimations = it.getBoolean("animation", false)
+            userId = it.getString("userId")!!
+        }
+
+        Log.d("RecyclerFragment", userId)
         val rootView = inflater.inflate(R.layout.fragment_notes_recycler, container, false)
         rootViewRef = WeakReference(rootView)
         notesRecyclerView = rootView.findViewById(R.id.notes_recycler)
@@ -62,24 +73,21 @@ class NotesRecyclerFragment : Fragment(), OnNoteSelectedListener {
         ItemTouchHelper(itemTouchHelper).attachToRecyclerView(notesRecyclerView)
 
         notesRecyclerView.setHasFixedSize(true)
-        val adapter = NotesAdapter(context!!, this)
+        adapter = NotesAdapter(context!!, this)
         notesRecyclerView.adapter = adapter
-        (notesRecyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
 
         noteViewModel = ViewModelProvider(
             this,
             ViewModelProvider.AndroidViewModelFactory.getInstance(activity?.application!!)
         ).get(NoteViewModel::class.java)
 
-        Log.d("viewmodel", "$noteViewModel ")
 
         if (!search) {
-            noteViewModel.allNotes.observe(viewLifecycleOwner, Observer { note ->
-                Log.d("inside observer", " ")
-                note?.let {
-                    Log.d("setNotes", " ")
-                    adapter.setNotes(it)
+            noteViewModel.getUserNotes(userId).observe(viewLifecycleOwner, Observer { notes ->
+                notes.forEach {
+                    Log.d("Notes", it.toString())
                 }
+                adapter.setNotes(notes)
             })
         }
 
@@ -94,6 +102,7 @@ class NotesRecyclerFragment : Fragment(), OnNoteSelectedListener {
         intent.putExtra("title", note.title)
         intent.putExtra("content", note.content)
         intent.putExtra("color", note.color)
+        intent.putExtra("userId", userId)
         startActivity(intent)
     }
 
@@ -105,8 +114,6 @@ class NotesRecyclerFragment : Fragment(), OnNoteSelectedListener {
                 val note = (viewHolder as NotesAdapter.NoteViewHolder).note
                 note?.let {
                     noteViewModel.delete(it)
-                    if (!search)
-                        notesRecyclerView.adapter?.notifyDataSetChanged()
                 }
             }
 
@@ -165,7 +172,18 @@ class NotesRecyclerFragment : Fragment(), OnNoteSelectedListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         search = arguments?.getBoolean("search") ?: false
+        userId = arguments?.getString("userId")!!
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("animation", setAnimations)
+        outState.putString("userId", userId)
+    }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        Log.d("Recycler", "Inside onActivityResult")
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d("Recycler", "After super function called")
+    }
 }

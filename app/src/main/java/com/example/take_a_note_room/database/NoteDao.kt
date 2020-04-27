@@ -10,6 +10,9 @@ interface NoteDao {
     @Query("SELECT * from ALlNotes")
     fun getAllNotes(): LiveData<List<NoteClass>>
 
+    @Query("SELECT * from ALlNotes where userName = :userId")
+    fun getUserNotes(userId: String): LiveData<List<NoteClass>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(note: NoteClass)
 
@@ -19,7 +22,7 @@ interface NoteDao {
     @Delete
     suspend fun delete(note: NoteClass)
 
-    @Query(value = "SELECT * from AllNotes where title LIKE :search OR content LIKE :search")
-    fun search(search: String): LiveData<List<NoteClass>>
+    @Query(value = "SELECT * from AllNotes where (title LIKE :search OR content LIKE :search) AND (userName=:userName)")
+    fun search(search: String, userName: String): LiveData<List<NoteClass>>
 }
 

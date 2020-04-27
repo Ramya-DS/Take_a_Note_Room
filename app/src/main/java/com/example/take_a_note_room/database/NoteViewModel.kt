@@ -24,4 +24,8 @@ class NoteViewModel(app: Application) : AndroidViewModel(app) {
         repository.delete(note)
     }
 
+    fun getUserNotes(userId: String): LiveData<List<NoteClass>>{
+        return repository.getUserNotes(userId)
+    }
+
 }

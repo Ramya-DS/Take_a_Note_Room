@@ -1,6 +1,7 @@
 package com.example.take_a_note_room
 
 import android.content.Context
+import android.os.Bundle
 import android.provider.ContactsContract
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,7 +18,7 @@ class NotesAdapter(
 ) :
     RecyclerView.Adapter<NotesAdapter.NoteViewHolder>() {
 
-    private var allNotes = emptyList<NoteClass>()
+    var allNotes = emptyList<NoteClass>()
 
     inner class NoteViewHolder(noteView: View) : RecyclerView.ViewHolder(noteView),
         View.OnClickListener {
@@ -32,7 +33,6 @@ class NotesAdapter(
 
         override fun onClick(v: View?) {
             mOnNoteSelectedListener.onNoteSelected(note!!)
-            Log.i("Onclick", "${note?.id}")
         }
     }
 
@@ -68,26 +68,29 @@ class NotesAdapter(
         if (payloads.isEmpty()) {
             super.onBindViewHolder(holder, position, payloads)
         } else {
-            val combinedChange = createCombinedPayload(payloads as List<Change<NoteClass>>)
-            val oldData = combinedChange.oldData
-            val newData = combinedChange.newData
+            val bundle = payloads[0] as Bundle
+            for (key in bundle.keySet()) {
+                if (key == "title") {
+                    holder.note?.title = bundle.getString(key)!!
+                    holder.title.text = bundle.getString(key)!!
+                } else if (key == "content") {
+                    holder.note?.content = bundle.getString(key)!!
+                    holder.content.text = bundle.getString(key)!!
+                } else if (key == "color") {
+                    holder.note?.color = bundle.getInt(key)
+                    holder.noteLayout.setBackgroundColor(
+                        getColor(
+                            holder.noteLayout.context,
+                            bundle.getInt(key)
+                        )
+                    )
+                }
 
-            if (newData.title != oldData.title) {
-                holder.title.text = newData.title
-            }
-
-            if (newData.content != oldData.content) {
-                holder.content.text = newData.content
-            }
-
-            if (newData.color != oldData.color) {
-                holder.noteLayout.setBackgroundColor(getColor(context, newData.color))
             }
         }
     }
 
     internal fun setNotes(note: List<NoteClass>) {
-        Log.d("Inside_set_notes", "${note.size}")
         val result = DiffUtil.calculateDiff(NotesListDiffUtilCallback(this.allNotes, note))
         result.dispatchUpdatesTo(this)
         this.allNotes = note
@@ -109,14 +112,24 @@ class NotesAdapter(
             oldItems[oldItemPosition] == newItems[newItemPosition]
 
         override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-            val oldItem = oldItems[oldItemPosition]
-            val newItem = newItems[newItemPosition]
+            val oldNote = oldItems[oldItemPosition]
+            val newNote = newItems[newItemPosition]
 
-            return Change(
-                oldItem,
-                newItem
-            )
+            val diffBundle = Bundle()
+            if (oldNote.title != newNote.title) {
+                diffBundle.putString("title", newNote.title)
+            }
+            if (oldNote.content != newNote.content) {
+                diffBundle.putString("content", newNote.content)
+            }
+            if (oldNote.color != newNote.color) {
+                diffBundle.putInt("color", newNote.color)
+            }
+
+            return if (diffBundle.size() == 0) null else diffBundle
+
         }
-    }
 
+    }
 }
+

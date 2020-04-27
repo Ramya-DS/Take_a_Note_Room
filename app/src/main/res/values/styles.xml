@@ -10,7 +10,7 @@
     </style>
 
     <style name="toolBarTheme" parent="Theme.AppCompat.Light">
-        <item name="android:textSize">20sp</item>
+        <item name="android:textSize">18sp</item>
         <item name="android:fontFamily">@font/heading_font</item>
         <item name="searchViewStyle">@style/MySearchViewStyle</item>
         <item name="android:editTextColor">@color/white</item>
@@ -18,7 +18,7 @@
     </style>
 
     <style name="RegularTextStyle" parent="android:Widget.TextView">
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:fontFamily">@font/regular_font</item>
     </style>
 
@@ -31,7 +31,7 @@
     </style>
 
     <style name="Regular" parent="android:Widget.EditText">
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:fontFamily">@font/regular_font</item>
     </style>
 
@@ -46,7 +46,15 @@
         <item name="goIcon">@drawable/go_icon</item>
         <item name="android:iconifiedByDefault">false</item>
         <item name="searchHintIcon">@null</item>
+        <item name="android:layout_width">match_parent</item>
     </style>
 
+    <style name="buttonStyle" parent="Widget.AppCompat.Button">
+        <item name="android:background">@color/colorPrimaryLight</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:theme">@style/Widget.AppCompat.Button.Borderless</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:fontFamily">@font/regular_font</item>
+    </style>
 
 </resources>

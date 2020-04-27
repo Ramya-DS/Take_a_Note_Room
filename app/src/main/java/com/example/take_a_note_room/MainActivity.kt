@@ -1,9 +1,12 @@
 package com.example.take_a_note_room
 
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
-import android.view.View
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -11,20 +14,47 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.MenuItemCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.example.take_a_note_room.login.ui.LoginActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var addNote: FloatingActionButton
     private lateinit var searchViewModel: SearchViewModel
-    var searchFragment: NotesRecyclerFragment? = null
-    lateinit var queryString: String
+    private var searchFragment: NotesRecyclerFragment? = null
+    private var mSearchQuery: String? = null
+    private var submit = false
     private lateinit var searchView: SearchView
     private lateinit var toolBar: Toolbar
+    private var recyclerFragment: NotesRecyclerFragment? = null
+    private var isExpanded: Boolean = false
+    private var userId: String? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        savedInstanceState?.let {
+            mSearchQuery = it.getString("query")
+            submit = it.getBoolean("submit")
+            isExpanded = it.getBoolean("expanded")
+            recyclerFragment =
+                supportFragmentManager.findFragmentByTag("contents") as NotesRecyclerFragment
+        }
+
+        userId = getUserNameFromSharedPref()
+
+        if (userId == null) {
+            openLoginScreen()
+        } else {
+            if (recyclerFragment == null)
+                displayNotes(userId!!)
+            else {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.content_fragment, recyclerFragment!!).commit()
+            }
+        }
 
         searchViewModel = ViewModelProvider(
             this,
@@ -35,14 +65,10 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolBar)
 
         addNote = findViewById(R.id.add)
-
-        val recyclerFragment = NotesRecyclerFragment.newInstance(false)
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.content_fragment, recyclerFragment)
-            .commit()
         addNote.setOnClickListener {
             startActivity(createAddNoteIntent())
         }
+
     }
 
     private fun createAddNoteIntent(): Intent = Intent(this, NoteActivity::class.java).apply {
@@ -51,44 +77,58 @@ class MainActivity : AppCompatActivity() {
         this.putExtra("title", "No title")
         this.putExtra("content", content)
         this.putExtra("color", BackgroundColor.random())
+        this.putExtra("userId", userId)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.logout -> {
+                updateSharedPreferencesForNoUser()
+                openLoginScreen()
+                return true
+            }
+            R.id.account_info -> {
+                Toast.makeText(this, "Curret account: $userId", Toast.LENGTH_LONG).show()
+            }
+        }
+        return false
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_toolbar, menu)
         val searchItem = menu?.findItem(R.id.search_notes)
         searchView = MenuItemCompat.getActionView(searchItem) as SearchView
+        searchView.maxWidth = resources.displayMetrics.widthPixels
         searchView.queryHint = "Search here..."
 
-        searchView.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
-            override fun onViewDetachedFromWindow(v: View?) {
-                addNote.show()
-                supportFragmentManager.popBackStack()
+        if (mSearchQuery != null && isExpanded) {
+            searchViewRestore(searchItem)
+        }
+
+        searchItem?.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionExpand(item: MenuItem?): Boolean {
+                searchViewSetup()
+                return true
             }
 
-            override fun onViewAttachedToWindow(v: View?) {
-                addNote.hide()
-                searchFragment = NotesRecyclerFragment.newInstance(true)
-                supportFragmentManager.beginTransaction()
-                    .setCustomAnimations(R.anim.fragment_fade_enter,R.anim.fragment_close_exit)
-                    .replace(R.id.content_fragment, searchFragment!!)
-                    .addToBackStack("Search").commit()
+            override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
+                searchViewClose()
+                return true
             }
-
         })
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 query?.let {
-                    queryString = it
-                    searchDb()
+                    submit = true
+                    searchDb(it)
                 }
                 return false
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 newText?.let {
-                    queryString = it
-                    searchDb()
+                    mSearchQuery = newText
                 }
                 return false
             }
@@ -96,22 +136,108 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    private fun searchDb() {
-        val query = "%$queryString%"
-        searchViewModel.search(query).observe(this, Observer {
-            if (it != null) {
+    private fun searchDb(query: String) {
+        val queryString = "%$query%"
+        mSearchQuery = query
+        Log.d("before", queryString)
+        searchViewModel.search(queryString, userId!!).observe(this, Observer {
+            if (it != null && searchFragment != null) {
                 ((searchFragment as NotesRecyclerFragment).notesRecyclerView.adapter as NotesAdapter).setNotes(
                     it
                 )
-            } else {
-                Toast.makeText(applicationContext, "NOTHING", Toast.LENGTH_LONG).show()
             }
         })
     }
 
     override fun onBackPressed() {
-        if (searchFragment != null)
-            supportFragmentManager.popBackStack()
+        removeSearchFragment()
         super.onBackPressed()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("query", searchView.query.toString())
+        outState.putBoolean("submit", submit)
+        outState.putBoolean("expanded", isExpanded)
+    }
+
+    private fun createSearchFragment() {
+        searchFragment = NotesRecyclerFragment.newInstance(true, userId!!)
+        supportFragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.fragment_fade_enter, R.anim.fragment_close_exit)
+            .replace(R.id.content_fragment, searchFragment!!)
+            .addToBackStack("Search").commit()
+    }
+
+    private fun removeSearchFragment() {
+        if (searchFragment != null) {
+            supportFragmentManager.popBackStack()
+            searchFragment = null
+        }
+    }
+
+    private fun searchViewSetup() {
+        isExpanded = true
+        addNote.hide()
+        createSearchFragment()
+    }
+
+    private fun searchViewClose() {
+        isExpanded = false
+        addNote.show()
+        removeSearchFragment()
+    }
+
+    private fun searchViewRestore(searchItem: MenuItem?) {
+        searchItem?.expandActionView()
+        removeSearchFragment()
+        searchViewSetup()
+        searchView.setQuery(mSearchQuery, false)
+        if (submit)
+            searchDb(mSearchQuery!!)
+        searchView.isFocusable = true
+
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        Log.d("MainActivity", "Inside onActivityResult")
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d("MainActivity", "After super function called")
+        if (resultCode == RESULT_OK && requestCode == 1) {
+            userId = data?.getStringExtra("userId")
+            displayNotes(userId!!)
+            Log.d("onActivity", userId)
+        }
+    }
+
+    private fun displayNotes(userId: String) {
+        if (recyclerFragment != null) {
+            supportFragmentManager.beginTransaction().remove(recyclerFragment!!).commit()
+            recyclerFragment == null
+        }
+        recyclerFragment = NotesRecyclerFragment.newInstance(false, userId)
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.content_fragment, recyclerFragment!!, "contents").commit()
+
+    }
+
+    private fun getUserNameFromSharedPref(): String? {
+        val sharedPreferences =
+            getSharedPreferences(getString(R.string.pref_key), Context.MODE_PRIVATE)
+        return sharedPreferences.getString("userId", null)
+    }
+
+    private fun openLoginScreen() {
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivityForResult(intent, 1)
+    }
+
+    private fun updateSharedPreferencesForNoUser() {
+        val sharedPreferences =
+            getSharedPreferences(getString(R.string.pref_key), Context.MODE_PRIVATE)
+        with(sharedPreferences.edit()) {
+            this.putString("userId", null)
+            this.commit()
+        }
     }
 }

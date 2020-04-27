@@ -8,6 +8,10 @@ class NoteRepository(private val noteDao: NoteDao) {
 
     val allNote: LiveData<List<NoteClass>> = noteDao.getAllNotes()
 
+    fun getUserNotes(userId: String): LiveData<List<NoteClass>> {
+        return noteDao.getUserNotes(userId)
+    }
+
     suspend fun insert(note: NoteClass) {
         noteDao.insert(note)
     }
@@ -21,8 +25,8 @@ class NoteRepository(private val noteDao: NoteDao) {
     }
 
     @WorkerThread
-    fun search(search: String): LiveData<List<NoteClass>> {
-        return noteDao.search(search)
+    fun search(search: String, userName: String): LiveData<List<NoteClass>> {
+        return noteDao.search(search, userName)
     }
 
 }

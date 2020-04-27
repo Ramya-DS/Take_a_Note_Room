@@ -16,7 +16,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         repository = NoteRepository(notesDao)
     }
 
-    fun search(search: String): LiveData<List<NoteClass>> {
-        return repository.search(search)
+    fun search(search: String, userName: String): LiveData<List<NoteClass>> {
+        return repository.search(search, userName)
     }
 }
