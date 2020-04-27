@@ -9,9 +9,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.example.take_a_note_room.ForgotPasswordFragment
 import com.example.take_a_note_room.R
 import com.example.take_a_note_room.login.viewModel.LoginViewModel
 import com.google.android.material.textfield.TextInputLayout
@@ -92,6 +94,18 @@ class SigInFragment : Fragment() {
                 authentication(userNameString, passwordString)
             }
         }
+
+        val forgotPassword: TextView = rootView.findViewById(R.id.forgot_password)
+        forgotPassword.setOnClickListener {
+            if (userNameText.text.trim().isNotEmpty()) {
+                val frag = ForgotPasswordFragment.newInstance(userNameText.text.toString())
+                fragmentManager!!.beginTransaction().replace(R.id.container_login, frag)
+                    .addToBackStack(null).commit()
+            } else
+                Toast.makeText(context!!, "Enter username", Toast.LENGTH_SHORT).show()
+
+        }
+
         return rootView
     }
 
@@ -106,11 +120,11 @@ class SigInFragment : Fragment() {
                         }
                     else
                         activity!!.runOnUiThread {
-                            passwordTextLayout.error="Wrong Password"
+                            passwordTextLayout.error = "Wrong Password"
                         }
                 } else {
                     activity!!.runOnUiThread {
-                        userNameTextLayout.error="Username does not exists"
+                        userNameTextLayout.error = "Username does not exists"
                     }
                 }
 

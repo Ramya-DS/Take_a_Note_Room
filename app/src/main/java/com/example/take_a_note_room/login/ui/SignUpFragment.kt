@@ -36,9 +36,6 @@ class SignUpFragment : Fragment() {
 
             return fragment
         }
-
-        private val PASSWORD_PATTERN =
-            Pattern.compile("^" + "(?=.*[0-9])" + "(?=.*[a-z])" + "(?=.*[A-Z])" + "(?=.*[a-zA-Z])" + "(?=.*[@#$%^&+=])" + "(?=\\S+$)" + ".{6,}" + "$")
     }
 
     private lateinit var viewModel: LoginViewModel
@@ -81,9 +78,7 @@ class SignUpFragment : Fragment() {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 enable =
-                    userNameText.text.trim().isNotEmpty() && passwordText.text.isNotEmpty() && validatePassword(
-                        passwordText.text.trim().toString()
-                    )
+                    userNameText.text.trim().isNotEmpty() && passwordText.text.isNotEmpty()
                 if (enable)
                     createButton.isEnabled = enable
             }
@@ -122,17 +117,6 @@ class SignUpFragment : Fragment() {
             }
         }
 
-    }
-
-    private fun validatePassword(password: String): Boolean {
-        if (password.isEmpty()) passwordTextLayout.error = "Field can't be empty"
-        else if (!PASSWORD_PATTERN.matcher(password).matches()) {
-            passwordTextLayout.error = "Password too weak"
-        } else {
-            passwordTextLayout.error = null
-            return true
-        }
-        return false
     }
 }
 

@@ -24,9 +24,13 @@ class LoginViewModel(app: Application) : AndroidViewModel(app) {
         repository.insert(loginEntity)
     }
 
+    fun update(loginEntity: LoginEntity) = viewModelScope.launch(Dispatchers.IO) {
+        repository.update(loginEntity)
+    }
+
     suspend fun checkForUserName(userId: String): Boolean {
-        val rowID= repository.checkForUserName(userId)
-        if(rowID>0)
+        val rowID = repository.checkForUserName(userId)
+        if (rowID > 0)
             return true
         return false
     }

@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface LoginDao {
@@ -19,4 +20,7 @@ interface LoginDao {
 
     @Query("SELECT * from LoginDatabase")
     fun getAllAccounts(): LiveData<List<LoginEntity>>
+
+    @Update
+    suspend fun update(loginEntity: LoginEntity)
 }

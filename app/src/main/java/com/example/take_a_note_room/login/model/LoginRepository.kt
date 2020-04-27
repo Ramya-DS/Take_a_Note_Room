@@ -6,15 +6,18 @@ class LoginRepository(private val loginDao: LoginDao) {
 
     val allAccount: LiveData<List<LoginEntity>> = loginDao.getAllAccounts()
 
-    suspend fun insert(loginEntity: LoginEntity): Boolean{
-         try{
-             loginDao.insert(loginEntity)
-             return true
-         }catch (e: Exception) {
-             return false
-         }
+    suspend fun insert(loginEntity: LoginEntity): Boolean {
+        return try {
+            loginDao.insert(loginEntity)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 
+    suspend fun update(loginEntity: LoginEntity) {
+        loginDao.update(loginEntity)
+    }
 
     suspend fun checkForUserName(userId: String): Int {
         return loginDao.checkForUserName(userId)
