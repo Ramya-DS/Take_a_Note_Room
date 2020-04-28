@@ -1,10 +1,9 @@
 package com.example.take_a_note_room
 
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -21,6 +20,12 @@ class NoteActivity : AppCompatActivity(), OnColorSelectedListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_note)
+
+        val toolbar = findViewById<Toolbar>(R.id.main_toolbar)
+        setSupportActionBar(toolbar)
+        toolbar.setNavigationOnClickListener {
+            finish()
+        }
 
         savedInstanceState?.let {
             currentNote = NoteClass(
@@ -122,10 +127,4 @@ class NoteActivity : AppCompatActivity(), OnColorSelectedListener {
             it.putString("userId", currentNote.userName)
         }
     }
-
-//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-//        Log.d("NotesActivity", "Inside onActivityResult")
-//        super.onActivityResult(requestCode, resultCode, data)
-//        Log.d("Activity", "After super function called")
-//    }
 }

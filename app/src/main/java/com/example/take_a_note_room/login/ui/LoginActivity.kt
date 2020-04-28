@@ -81,4 +81,9 @@ class LoginActivity : AppCompatActivity(), OnSuccessListener {
             }
         }
     }
+
+    override fun onBackPressed() {
+        finishAffinity()
+        super.onBackPressed()
+    }
 }

@@ -3,7 +3,6 @@ package com.example.take_a_note_room
 
 import android.content.Intent
 import android.graphics.Canvas
-import android.graphics.PorterDuff
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
@@ -11,7 +10,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.Fragment
@@ -20,7 +18,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SimpleItemAnimator
 import com.example.take_a_note_room.database.NoteViewModel
 import java.lang.ref.WeakReference
 
@@ -45,6 +42,7 @@ class NotesRecyclerFragment : Fragment(), OnNoteSelectedListener {
     private var setAnimations = true
     lateinit var adapter: NotesAdapter
     lateinit var userId: String
+    private var mOnRecyclerViewScrollListener: OnRecyclerViewScrollListener? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -91,6 +89,16 @@ class NotesRecyclerFragment : Fragment(), OnNoteSelectedListener {
             })
         }
 
+        notesRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (dy > 0) {
+                    mOnRecyclerViewScrollListener?.onRecyclerViewScrolled(true)
+                } else if (dy < 0) {
+                    mOnRecyclerViewScrollListener?.onRecyclerViewScrolled(false)
+                }
+            }
+        })
         return rootView
 
     }
@@ -181,9 +189,8 @@ class NotesRecyclerFragment : Fragment(), OnNoteSelectedListener {
         outState.putString("userId", userId)
     }
 
-//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-//        Log.d("Recycler", "Inside onActivityResult")
-//        super.onActivityResult(requestCode, resultCode, data)
-//        Log.d("Recycler", "After super function called")
-//    }
+    fun setListener(listener: OnRecyclerViewScrollListener?) {
+        mOnRecyclerViewScrollListener = listener
+    }
+
 }

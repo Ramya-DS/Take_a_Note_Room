@@ -35,6 +35,7 @@
             android:layout_height="100dp"
             android:layout_marginStart="5dp"
             android:ellipsize="end"
+            android:maxLines="4"
             android:maxHeight="150dp"
             android:padding="5dp"
             android:textColor="@color/colorPrimaryDark" />

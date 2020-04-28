@@ -11,13 +11,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.MenuItemCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.take_a_note_room.login.ui.LoginActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnRecyclerViewScrollListener {
 
     private lateinit var addNote: FloatingActionButton
     private lateinit var searchViewModel: SearchViewModel
@@ -40,6 +41,7 @@ class MainActivity : AppCompatActivity() {
             isExpanded = it.getBoolean("expanded")
             recyclerFragment =
                 supportFragmentManager.findFragmentByTag("contents") as NotesRecyclerFragment
+            recyclerFragment?.setListener(this)
         }
 
         userId = getUserNameFromSharedPref()
@@ -126,7 +128,6 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                Log.d("text change", newText)
                 newText?.let {
                     mSearchQuery = newText
 
@@ -141,12 +142,15 @@ class MainActivity : AppCompatActivity() {
     private fun searchDb(query: String) {
         val queryString = "%$query%"
         mSearchQuery = query
-        Log.d("before", queryString)
         searchViewModel.search(queryString, userId!!).observe(this, Observer {
             if (it != null && searchFragment != null) {
-                ((searchFragment as NotesRecyclerFragment).notesRecyclerView.adapter as NotesAdapter).setNotes(
-                    it
-                )
+                val recyclerView = (searchFragment as NotesRecyclerFragment).notesRecyclerView
+                if (it.isEmpty())
+                    Toast.makeText(this, "NO MATCHES", Toast.LENGTH_SHORT).show()
+                else {
+                    (recyclerView.adapter as NotesAdapter).setNotes(it)
+                }
+
             }
         })
     }
@@ -202,13 +206,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.d("MainActivity", "Inside onActivityResult")
         super.onActivityResult(requestCode, resultCode, data)
-        Log.d("MainActivity", "After super function called")
         if (resultCode == RESULT_OK && requestCode == 1) {
             userId = data?.getStringExtra("userId")
             displayNotes(userId!!)
-            Log.d("onActivity", userId)
         }
     }
 
@@ -216,8 +217,10 @@ class MainActivity : AppCompatActivity() {
         if (recyclerFragment != null) {
             supportFragmentManager.beginTransaction().remove(recyclerFragment!!).commit()
             recyclerFragment == null
+            recyclerFragment?.setListener(null)
         }
         recyclerFragment = NotesRecyclerFragment.newInstance(false, userId)
+        recyclerFragment?.setListener(this)
         supportFragmentManager.beginTransaction()
             .replace(R.id.content_fragment, recyclerFragment!!, "contents").commit()
 
@@ -241,5 +244,12 @@ class MainActivity : AppCompatActivity() {
             this.putString("userId", null)
             this.commit()
         }
+    }
+
+    override fun onRecyclerViewScrolled(hide: Boolean) {
+        if (hide)
+            addNote.hide()
+        else
+            addNote.show()
     }
 }
