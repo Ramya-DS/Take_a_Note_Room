@@ -55,7 +55,7 @@ class ForgotPasswordFragment : Fragment() {
             rootView.findViewById(R.id.password_reenter_wrapper)
         val passwordReenter: EditText = rootView.findViewById(R.id.password_reenter_text)
 
-        val submit: Button = rootView.findViewById(R.id.submit)
+        val submit: Button = rootView.findViewById(R.id.confirm)
 
 
         val textWatcher = object : TextWatcher {

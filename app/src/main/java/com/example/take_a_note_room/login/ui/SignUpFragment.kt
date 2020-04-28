@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -61,13 +62,12 @@ class SignUpFragment : Fragment() {
         })
         var enable = false
 
-        userNameTextLayout = rootView.findViewById(R.id.mail_wrapper)
+        userNameTextLayout = rootView.findViewById(R.id.username_wrapper)
         val userNameText: EditText = rootView.findViewById(R.id.username_text)
 
-        passwordTextLayout = rootView.findViewById(R.id.password_wrapper)
         val passwordText: EditText = rootView.findViewById(R.id.password_text)
         val createButton: Button =
-            rootView.findViewById(R.id.create_button)
+            rootView.findViewById(R.id.register)
 
         val textWatcher = object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
@@ -93,6 +93,14 @@ class SignUpFragment : Fragment() {
                 val passwordString = passwordText.text.trim().toString()
 
                 checkForUserName(userNameString, passwordString)
+            }
+        }
+        val login: TextView = rootView.findViewById(R.id.login)
+        login.setOnClickListener {
+            fragmentManager?.let {
+                val frag = it.findFragmentByTag("SIGN UP")
+                it.beginTransaction().remove(frag!!).commit()
+                it.popBackStack()
             }
         }
         return rootView

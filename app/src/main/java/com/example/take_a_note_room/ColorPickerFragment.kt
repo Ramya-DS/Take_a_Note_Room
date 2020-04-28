@@ -1,7 +1,9 @@
 package com.example.take_a_note_room
 
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -49,4 +51,10 @@ class ColorPickerFragment : DialogFragment() {
     fun setListener(listener: OnColorSelectedListener) {
         mOnColorSelectedListener = listener
     }
+
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        Log.d("Color", "Inside onActivityResult")
+//        super.onActivityResult(requestCode, resultCode, data)
+//        Log.d("Recycler", "After super function called")
+//    }
 }

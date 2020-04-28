@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
+import com.example.take_a_note_room.database.TakeANote
 import com.example.take_a_note_room.login.model.LoginDatabase
 import com.example.take_a_note_room.login.model.LoginEntity
 import com.example.take_a_note_room.login.model.LoginRepository
@@ -15,7 +16,7 @@ class LoginViewModel(app: Application) : AndroidViewModel(app) {
     val allAccounts: LiveData<List<LoginEntity>>
 
     init {
-        val loginDao = LoginDatabase.getDatabase(app, viewModelScope).loginDao()
+        val loginDao = TakeANote.getDatabase(app, viewModelScope).loginDao()
         repository = LoginRepository(loginDao)
         allAccounts = repository.allAccount
     }

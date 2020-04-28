@@ -181,9 +181,9 @@ class NotesRecyclerFragment : Fragment(), OnNoteSelectedListener {
         outState.putString("userId", userId)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.d("Recycler", "Inside onActivityResult")
-        super.onActivityResult(requestCode, resultCode, data)
-        Log.d("Recycler", "After super function called")
-    }
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        Log.d("Recycler", "Inside onActivityResult")
+//        super.onActivityResult(requestCode, resultCode, data)
+//        Log.d("Recycler", "After super function called")
+//    }
 }

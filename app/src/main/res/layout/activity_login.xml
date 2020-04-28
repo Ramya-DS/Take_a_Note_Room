@@ -1,61 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".login.ui.LoginActivity">
+    android:background="@color/loginBkColor"
+    android:orientation="vertical">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:background="@drawable/login_shape_bk">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:background="@drawable/ic_login_bk" />
+        </LinearLayout>
+
         <ImageView
-            android:id="@+id/logo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:contentDescription="@string/application_icon"
-            android:padding="20dp"
-            android:src="@drawable/logo"
-            app:layout_constraintBottom_toTopOf="@+id/sign_in"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_centerHorizontal="true"
 
-        <Button
-            android:id="@+id/sign_up"
-            style="@style/buttonStyle"
+            android:src="@drawable/ic_post_it" />
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/sign_up"
-            app:layout_constraintBottom_toTopOf="@+id/container_login"
-            app:layout_constraintEnd_toStartOf="@+id/sign_in"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/logo" />
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="115dp"
+            android:elevation="10dp"
+            android:text="TAKE A NOTE"
+            android:textColor="#FFFFFF"
+            android:textSize="30sp"
+            android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/sign_in"
-            style="@style/buttonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/sign_in"
-            app:layout_constraintBottom_toTopOf="@id/container_login"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/sign_up"
-            app:layout_constraintTop_toBottomOf="@id/logo" />
-
-        <FrameLayout
-            android:id="@+id/container_login"
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sign_in" />
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="160dp"
+            android:layout_marginEnd="20dp"
+            android:elevation="20dp"
+            android:id="@+id/container_cardview"
+            app:cardCornerRadius="40dp"
+            android:layout_marginBottom="10dp">
 
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/container_login"/>
+        </androidx.cardview.widget.CardView>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </RelativeLayout>
 
 </ScrollView>

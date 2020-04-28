@@ -123,9 +123,9 @@ class NoteActivity : AppCompatActivity(), OnColorSelectedListener {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.d("NotesActivity", "Inside onActivityResult")
-        super.onActivityResult(requestCode, resultCode, data)
-        Log.d("Activity", "After super function called")
-    }
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        Log.d("NotesActivity", "Inside onActivityResult")
+//        super.onActivityResult(requestCode, resultCode, data)
+//        Log.d("Activity", "After super function called")
+//    }
 }

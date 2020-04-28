@@ -61,14 +61,14 @@ class SigInFragment : Fragment() {
 
         var enable = false
 
-        userNameTextLayout = rootView.findViewById(R.id.mail_wrapper)
+        userNameTextLayout = rootView.findViewById(R.id.username_wrapper)
         val userNameText: EditText = rootView.findViewById(R.id.username_text)
 
         passwordTextLayout = rootView.findViewById(R.id.password_wrapper)
         val passwordText: EditText = rootView.findViewById(R.id.password_text)
 
         val loginButton: Button =
-            rootView.findViewById(R.id.login_button)
+            rootView.findViewById(R.id.login)
 
         val textWatcher = object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
@@ -100,12 +100,18 @@ class SigInFragment : Fragment() {
             if (userNameText.text.trim().isNotEmpty()) {
                 val frag = ForgotPasswordFragment.newInstance(userNameText.text.toString())
                 fragmentManager!!.beginTransaction().replace(R.id.container_login, frag)
-                    .addToBackStack(null).commit()
+                    .addToBackStack("FORGOT PASSWORD").commit()
             } else
                 Toast.makeText(context!!, "Enter username", Toast.LENGTH_SHORT).show()
 
         }
 
+        val signup = rootView.findViewById<TextView>(R.id.signup)
+        signup.setOnClickListener {
+            fragmentManager!!.beginTransaction()
+                .replace(R.id.container_login, SignUpFragment(), "SIGN UP")
+                .addToBackStack(null).commit()
+        }
         return rootView
     }
 
