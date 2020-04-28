@@ -3,7 +3,11 @@ package com.example.take_a_note_room.login.ui
 
 import android.os.Bundle
 import android.text.Editable
+import android.text.SpannableString
+import android.text.Spanned
 import android.text.TextWatcher
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -22,7 +26,6 @@ import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import java.util.regex.Pattern
 
 
 /**
@@ -96,13 +99,25 @@ class SignUpFragment : Fragment() {
             }
         }
         val login: TextView = rootView.findViewById(R.id.login)
-        login.setOnClickListener {
-            fragmentManager?.let {
-                val frag = it.findFragmentByTag("SIGN UP")
-                it.beginTransaction().remove(frag!!).commit()
-                it.popBackStack()
+        val spannableString = SpannableString(login.text)
+        val clickableSpan = object : ClickableSpan() {
+            override fun onClick(widget: View) {
+                fragmentManager?.let {
+                    val frag = it.findFragmentByTag("SIGN UP")
+                    it.beginTransaction().remove(frag!!).commit()
+                    it.popBackStack()
+                }
             }
         }
+
+        spannableString.setSpan(
+            clickableSpan,
+            0,
+            login.text.length - 1,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        login.text = spannableString
+        login.movementMethod = LinkMovementMethod.getInstance()
         return rootView
     }
 

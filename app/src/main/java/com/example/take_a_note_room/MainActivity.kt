@@ -2,7 +2,6 @@ package com.example.take_a_note_room
 
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -127,8 +126,11 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
+                Log.d("text change", newText)
                 newText?.let {
                     mSearchQuery = newText
+
+                    searchDb(it)
                 }
                 return false
             }

@@ -2,8 +2,10 @@ package com.example.take_a_note_room.login.ui
 
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
+import android.text.*
+import android.text.method.LinkMovementMethod
+import android.text.style.BackgroundColorSpan
+import android.text.style.ClickableSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +22,8 @@ import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-
+import java.util.*
+import kotlin.math.sign
 
 /**
  * A simple [Fragment] subclass.
@@ -107,11 +110,24 @@ class SigInFragment : Fragment() {
         }
 
         val signup = rootView.findViewById<TextView>(R.id.signup)
-        signup.setOnClickListener {
-            fragmentManager!!.beginTransaction()
-                .replace(R.id.container_login, SignUpFragment(), "SIGN UP")
-                .addToBackStack(null).commit()
+        val spannableString = SpannableString(signup.text)
+        val clickableSpan = object : ClickableSpan() {
+            override fun onClick(widget: View) {
+                fragmentManager!!.beginTransaction()
+                    .replace(R.id.container_login, SignUpFragment(), "SIGN UP")
+                    .addToBackStack(null).commit()
+            }
         }
+
+        spannableString.setSpan(
+            clickableSpan,
+            0,
+            signup.text.length - 1,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        signup.text = spannableString
+        signup.movementMethod = LinkMovementMethod.getInstance()
+
         return rootView
     }
 
@@ -135,6 +151,26 @@ class SigInFragment : Fragment() {
                 }
 
             }
+        }
+    }
+
+    fun setHighLightedText(tv: TextView, textToHighlight: String) {
+        val tvt = tv.text.toString()
+        var ofe = tvt.indexOf(textToHighlight, 0)
+        val wordToSpan: Spannable = SpannableString(tv.text)
+        var ofs = 0
+        while (ofs < tvt.length && ofe != -1) {
+            ofe = tvt.indexOf(textToHighlight, ofs)
+            if (ofe == -1) break else { // set color here
+                wordToSpan.setSpan(
+                    BackgroundColorSpan(-0x100),
+                    ofe,
+                    ofe + textToHighlight.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                tv.setText(wordToSpan, TextView.BufferType.SPANNABLE)
+            }
+            ofs = ofe + 1
         }
     }
 }
