@@ -22,8 +22,6 @@ import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import java.util.*
-import kotlin.math.sign
 
 /**
  * A simple [Fragment] subclass.
@@ -55,12 +53,6 @@ class SigInFragment : Fragment() {
             this,
             ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
         ).get(LoginViewModel::class.java)
-
-//        viewModel.allAccounts.observe(this.viewLifecycleOwner, Observer {
-//            it.forEach { acc ->
-//                Log.d(acc.toString(), " ")
-//            }
-//        })
 
         var enable = false
 
@@ -114,6 +106,7 @@ class SigInFragment : Fragment() {
         val clickableSpan = object : ClickableSpan() {
             override fun onClick(widget: View) {
                 fragmentManager!!.beginTransaction()
+                    .setCustomAnimations(R.anim.fragment_fade_enter,R.anim.fragment_fade_exit)
                     .replace(R.id.container_login, SignUpFragment(), "SIGN UP")
                     .addToBackStack(null).commit()
             }

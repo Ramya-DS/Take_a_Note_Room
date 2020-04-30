@@ -1,16 +1,13 @@
 package com.example.take_a_note_room
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import java.lang.ref.WeakReference
 
 class ColorAdapter(
-    val mOnColorSelectedListener: OnColorSelectedListener,
-    val context: WeakReference<Context>
+    val mOnColorSelectedListener: OnColorSelectedListener
 ) :
     RecyclerView.Adapter<ColorAdapter.ColorViewHolder>() {
 
@@ -39,7 +36,7 @@ class ColorAdapter(
     override fun onBindViewHolder(holder: ColorViewHolder, position: Int) {
         holder.colorView.setBackgroundColor(
             ContextCompat.getColor(
-                context.get()!!,
+                holder.colorView.context!!,
                 ColorPickerFragment.value!![position].color
             )
         )

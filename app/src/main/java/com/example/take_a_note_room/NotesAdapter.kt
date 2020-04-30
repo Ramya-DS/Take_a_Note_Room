@@ -1,9 +1,6 @@
 package com.example.take_a_note_room
 
-import android.content.Context
 import android.os.Bundle
-import android.provider.ContactsContract
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,12 +10,11 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 
 class NotesAdapter(
-    private val context: Context,
     val mOnNoteSelectedListener: OnNoteSelectedListener
 ) :
     RecyclerView.Adapter<NotesAdapter.NoteViewHolder>() {
 
-    var allNotes = emptyList<NoteClass>()
+    var allNotes = mutableListOf<NoteClass>()
 
     inner class NoteViewHolder(noteView: View) : RecyclerView.ViewHolder(noteView),
         View.OnClickListener {
@@ -54,7 +50,7 @@ class NotesAdapter(
         holder.content.text = current.content
         holder.noteLayout.setBackgroundColor(
             getColor(
-                context,
+                holder.noteLayout.context,
                 current.color
             )
         )
@@ -70,20 +66,24 @@ class NotesAdapter(
         } else {
             val bundle = payloads[0] as Bundle
             for (key in bundle.keySet()) {
-                if (key == "title") {
-                    holder.note?.title = bundle.getString(key)!!
-                    holder.title.text = bundle.getString(key)!!
-                } else if (key == "content") {
-                    holder.note?.content = bundle.getString(key)!!
-                    holder.content.text = bundle.getString(key)!!
-                } else if (key == "color") {
-                    holder.note?.color = bundle.getInt(key)
-                    holder.noteLayout.setBackgroundColor(
-                        getColor(
-                            holder.noteLayout.context,
-                            bundle.getInt(key)
+                when (key) {
+                    "title" -> {
+                        holder.note?.title = bundle.getString(key)!!
+                        holder.title.text = bundle.getString(key)!!
+                    }
+                    "content" -> {
+                        holder.note?.content = bundle.getString(key)!!
+                        holder.content.text = bundle.getString(key)!!
+                    }
+                    "color" -> {
+                        holder.note?.color = bundle.getInt(key)
+                        holder.noteLayout.setBackgroundColor(
+                            getColor(
+                                holder.noteLayout.context,
+                                bundle.getInt(key)
+                            )
                         )
-                    )
+                    }
                 }
 
             }
@@ -93,7 +93,8 @@ class NotesAdapter(
     internal fun setNotes(note: List<NoteClass>) {
         val result = DiffUtil.calculateDiff(NotesListDiffUtilCallback(this.allNotes, note))
         result.dispatchUpdatesTo(this)
-        this.allNotes = note
+        allNotes.clear()
+        allNotes.addAll(note)
     }
 
     class NotesListDiffUtilCallback(

@@ -1,6 +1,5 @@
 package com.example.take_a_note_room.database
 
-import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import com.example.take_a_note_room.NoteClass
 
@@ -24,8 +23,7 @@ class NoteRepository(private val noteDao: NoteDao) {
         noteDao.delete(note)
     }
 
-    @WorkerThread
-    fun search(search: String, userName: String): LiveData<List<NoteClass>> {
+    fun search(search: String, userName: String): List<NoteClass> {
         return noteDao.search(search, userName)
     }
 

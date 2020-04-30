@@ -1,9 +1,7 @@
 package com.example.take_a_note_room
 
 
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +9,6 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import java.lang.ref.WeakReference
 
 /**
  * A simple [Fragment] subclass.
@@ -39,7 +36,7 @@ class ColorPickerFragment : DialogFragment() {
         val colorList = rootView.findViewById<RecyclerView>(R.id.color_recycler)
         colorList.layoutManager = GridLayoutManager(context!!, 3)
         colorList.setHasFixedSize(true)
-        colorList.adapter = ColorAdapter(mOnColorSelectedListener!!, WeakReference(context!!))
+        colorList.adapter = ColorAdapter(mOnColorSelectedListener!!)
         return rootView
     }
 

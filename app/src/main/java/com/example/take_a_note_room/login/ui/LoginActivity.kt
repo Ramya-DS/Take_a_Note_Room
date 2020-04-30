@@ -22,10 +22,12 @@ class LoginActivity : AppCompatActivity(), OnSuccessListener {
         val logInFragment = supportFragmentManager.findFragmentByTag("LOG IN")
         if (logInFragment == null)
             supportFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.fragment_fade_enter,R.anim.fragment_fade_exit)
                 .replace(R.id.container_login, SigInFragment(), "LOG IN")
                 .commit()
         else
             supportFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.fragment_fade_enter,R.anim.fragment_fade_exit)
                 .replace(R.id.container_login, logInFragment as SigInFragment, "LOG IN")
                 .commit()
 

@@ -16,6 +16,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -104,7 +105,9 @@ class SignUpFragment : Fragment() {
             override fun onClick(widget: View) {
                 fragmentManager?.let {
                     val frag = it.findFragmentByTag("SIGN UP")
-                    it.beginTransaction().remove(frag!!).commit()
+                    it.beginTransaction()
+                        .setCustomAnimations(R.anim.fragment_fade_enter, R.anim.fragment_fade_exit)
+                        .remove(frag!!).commit()
                     it.popBackStack()
                 }
             }

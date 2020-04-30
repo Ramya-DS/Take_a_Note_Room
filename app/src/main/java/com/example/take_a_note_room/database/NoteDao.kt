@@ -23,6 +23,6 @@ interface NoteDao {
     suspend fun delete(note: NoteClass)
 
     @Query(value = "SELECT * from AllNotes where (title LIKE :search OR content LIKE :search) AND (userName=:userName)")
-    fun search(search: String, userName: String): LiveData<List<NoteClass>>
+    fun search(search: String, userName: String): List<NoteClass>
 }
 
