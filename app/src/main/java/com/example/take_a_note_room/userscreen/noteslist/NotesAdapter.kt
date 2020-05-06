@@ -1,4 +1,4 @@
-package com.example.take_a_note_room
+package com.example.take_a_note_room.userscreen.noteslist
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,10 +8,11 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat.getColor
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.example.take_a_note_room.R
+import com.example.take_a_note_room.database.NoteClass
+import com.example.take_a_note_room.userscreen.utils.OnNoteSelectedListener
 
-class NotesAdapter(
-    val mOnNoteSelectedListener: OnNoteSelectedListener
-) :
+class NotesAdapter(val mOnNoteSelectedListener: OnNoteSelectedListener) :
     RecyclerView.Adapter<NotesAdapter.NoteViewHolder>() {
 
     var allNotes = mutableListOf<NoteClass>()
@@ -91,7 +92,12 @@ class NotesAdapter(
     }
 
     internal fun setNotes(note: List<NoteClass>) {
-        val result = DiffUtil.calculateDiff(NotesListDiffUtilCallback(this.allNotes, note))
+        val result = DiffUtil.calculateDiff(
+            NotesListDiffUtilCallback(
+                this.allNotes,
+                note
+            )
+        )
         result.dispatchUpdatesTo(this)
         allNotes.clear()
         allNotes.addAll(note)

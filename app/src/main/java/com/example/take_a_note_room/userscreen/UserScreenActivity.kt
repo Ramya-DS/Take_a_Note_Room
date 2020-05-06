@@ -1,4 +1,4 @@
-package com.example.take_a_note_room
+package com.example.take_a_note_room.userscreen
 
 import android.content.Context
 import android.content.Intent
@@ -11,14 +11,22 @@ import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.MenuItemCompat
 import androidx.lifecycle.ViewModelProvider
+import com.example.take_a_note_room.R
+import com.example.take_a_note_room.colorselector.BackgroundColor
 import com.example.take_a_note_room.login.ui.LoginActivity
+import com.example.take_a_note_room.userscreen.note.NoteActivity
+import com.example.take_a_note_room.userscreen.noteslist.NotesAdapter
+import com.example.take_a_note_room.userscreen.noteslist.NotesRecyclerFragment
+import com.example.take_a_note_room.userscreen.search.SearchFragment
+import com.example.take_a_note_room.userscreen.search.SearchViewModel
+import com.example.take_a_note_room.userscreen.utils.OnRecyclerViewScrollListener
+import com.example.take_a_note_room.userscreen.utils.UserDetailsViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
-
-class MainActivity : AppCompatActivity(), OnRecyclerViewScrollListener {
+class UserScreenActivity : AppCompatActivity(), OnRecyclerViewScrollListener {
 
     private lateinit var addNote: FloatingActionButton
     private lateinit var searchViewModel: SearchViewModel
@@ -28,38 +36,46 @@ class MainActivity : AppCompatActivity(), OnRecyclerViewScrollListener {
     private lateinit var toolBar: Toolbar
     private var recyclerFragment: NotesRecyclerFragment? = null
     private var isExpanded: Boolean = false
-    private var userId: String? = null
+    private var userId: Int = -1
     private var collapseActionView = false
-
+    private lateinit var userDetailsViewModel: UserDetailsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
         savedInstanceState?.let {
+            userId = it.getInt("userId")
             mSearchQuery = it.getString("query")
             isExpanded = it.getBoolean("expanded")
             recyclerFragment =
-                supportFragmentManager.findFragmentByTag("contents")?.run { this as NotesRecyclerFragment }
+                supportFragmentManager.findFragmentByTag("contents")
+                    ?.run { this as NotesRecyclerFragment }
             recyclerFragment?.setListener(this)
         }
 
-        userId = getUserNameFromSharedPref()
+        if (userId == -1)
+            receiveUserId()
+        setUpViewContents()
 
-        if (userId == null) {
-            openLoginScreen()
-        } else {
-            if (recyclerFragment == null)
-                displayNotes(userId!!)
-            else {
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.content_fragment, recyclerFragment!!).commit()
-            }
+    }
+
+    private fun setUpViewContents() {
+        setContentView(R.layout.activity_main)
+        if (recyclerFragment == null)
+            displayNotes(userId)
+        else {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.content_fragment, recyclerFragment!!).commit()
         }
-
         searchViewModel = ViewModelProvider(
             this,
             ViewModelProvider.AndroidViewModelFactory.getInstance(application)
         ).get(SearchViewModel::class.java)
+
+        userDetailsViewModel = ViewModelProvider(
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+        ).get(UserDetailsViewModel::class.java)
 
         toolBar = findViewById(R.id.main_toolbar)
         setSupportActionBar(toolBar)
@@ -68,7 +84,6 @@ class MainActivity : AppCompatActivity(), OnRecyclerViewScrollListener {
         addNote.setOnClickListener {
             startActivity(createAddNoteIntent())
         }
-
     }
 
     private fun createAddNoteIntent(): Intent = Intent(this, NoteActivity::class.java).apply {
@@ -89,7 +104,18 @@ class MainActivity : AppCompatActivity(), OnRecyclerViewScrollListener {
                 return true
             }
             R.id.account_info -> {
-                Toast.makeText(this, "Curret account: $userId", Toast.LENGTH_LONG).show()
+                runBlocking {
+                    withContext(Dispatchers.IO) {
+                        val username = userDetailsViewModel.getUsername(userId)
+                        runOnUiThread {
+                            Toast.makeText(
+                                this@UserScreenActivity,
+                                "Current account: $username",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                }
             }
         }
         return false
@@ -129,10 +155,9 @@ class MainActivity : AppCompatActivity(), OnRecyclerViewScrollListener {
             override fun onQueryTextChange(newText: String?): Boolean {
                 newText?.let {
                     if (searchFragment != null) {
-                        (searchFragment as SearchFragment).setQueryChange(it)
+                        mSearchQuery = it
                         searchDb(it)
                     }
-
                 }
                 return false
             }
@@ -143,8 +168,8 @@ class MainActivity : AppCompatActivity(), OnRecyclerViewScrollListener {
     private fun searchDb(query: String) {
         runBlocking {
             withContext(Dispatchers.IO) {
-                val result = searchViewModel.search("%$query%", userId!!)
-                this@MainActivity.runOnUiThread {
+                val result = searchViewModel.search("%$query%", userId)
+                this@UserScreenActivity.runOnUiThread {
                     val recyclerView = (searchFragment as SearchFragment).notesRecyclerView
                     if (query == "")
                         (recyclerView.adapter as NotesAdapter).setNotes(emptyList())
@@ -155,49 +180,42 @@ class MainActivity : AppCompatActivity(), OnRecyclerViewScrollListener {
         }
     }
 
-//    private fun searchDb(query: String) {
-//        mSearchQuery = "%$query%"
-//        Log.d("query", "$collapseActionView $query")
-//        searchViewModel.search(mSearchQuery!!, userId!!).observe(this, Observer {
-//            Log.d("observe", "${it.size} $mSearchQuery\n")
-//            if (it != null && searchFragment != null) {
-//                val recyclerView = (searchFragment as NotesRecyclerFragment).notesRecyclerView
-//                if (it.isEmpty()) {
-//                    Log.d("seachdb", query)
-////                    Toast.makeText(this, "NO MATCHES", Toast.LENGTH_SHORT).show()
-//                }
-//                if (mSearchQuery != "")
-//                    (recyclerView.adapter as NotesAdapter).setNotes(it)
-//                else
-//                    (recyclerView.adapter as NotesAdapter).setNotes(emptyList())
-//
-//            }
-//        })
-//    }
-
-
     override fun onBackPressed() {
-        removeSearchFragment()
+        if (searchFragment != null)
+            removeSearchFragment()
+        else
+            finishAffinity()
+
         super.onBackPressed()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putString("query", searchView.query.toString())
+        outState.putInt("userId", userId)
+        outState.putString("query", mSearchQuery)
         outState.putBoolean("expanded", isExpanded)
     }
 
     private fun createSearchFragment() {
-        searchFragment = SearchFragment.newInstance(userId!!)
+        searchFragment =
+            SearchFragment.newInstance(
+                userId
+            )
         supportFragmentManager.beginTransaction()
-            .setCustomAnimations(R.anim.fragment_fade_enter, R.anim.fragment_fade_exit)
+            .setCustomAnimations(
+                R.anim.fragment_fade_enter,
+                R.anim.fragment_fade_exit
+            )
             .replace(R.id.content_fragment, searchFragment!!).addToBackStack(null).commit()
     }
 
     private fun removeSearchFragment() {
         if (searchFragment != null) {
             supportFragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.fragment_fade_enter, R.anim.fragment_fade_exit)
+                .setCustomAnimations(
+                    R.anim.fragment_fade_enter,
+                    R.anim.fragment_fade_exit
+                )
                 .remove(searchFragment!!).commit()
             supportFragmentManager.popBackStack()
             searchFragment = null
@@ -226,45 +244,40 @@ class MainActivity : AppCompatActivity(), OnRecyclerViewScrollListener {
 
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        removeSearchFragment()
-        toolBar.collapseActionView()
-        if (resultCode == RESULT_OK && requestCode == 1) {
-            userId = data?.getStringExtra("userId")
-            displayNotes(userId!!)
-        }
+    private fun receiveUserId() {
+        userId = intent.getIntExtra("userId", -1)
     }
 
-    private fun displayNotes(userId: String) {
+
+    private fun displayNotes(userId: Int) {
         if (recyclerFragment != null) {
             supportFragmentManager.beginTransaction().remove(recyclerFragment!!).commit()
             recyclerFragment == null
             recyclerFragment?.setListener(null)
         }
-        recyclerFragment = NotesRecyclerFragment.newInstance(false, userId)
+        recyclerFragment =
+            NotesRecyclerFragment.newInstance(
+                false,
+                userId
+            )
         recyclerFragment?.setListener(this)
         supportFragmentManager.beginTransaction()
             .replace(R.id.content_fragment, recyclerFragment!!, "contents").commit()
 
     }
 
-    private fun getUserNameFromSharedPref(): String? {
-        val sharedPreferences =
-            getSharedPreferences(getString(R.string.pref_key), Context.MODE_PRIVATE)
-        return sharedPreferences.getString("userId", null)
-    }
 
     private fun openLoginScreen() {
         val intent = Intent(this, LoginActivity::class.java)
-        startActivityForResult(intent, 1)
+        startActivity(intent)
+        finish()
     }
 
     private fun updateSharedPreferencesForNoUser() {
         val sharedPreferences =
             getSharedPreferences(getString(R.string.pref_key), Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
-            this.putString("userId", null)
+            this.putInt("userId", -1)
             this.commit()
         }
     }

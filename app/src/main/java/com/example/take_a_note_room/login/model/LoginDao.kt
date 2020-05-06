@@ -10,16 +10,19 @@ import androidx.room.Update
 interface LoginDao {
 
     @Insert
-    suspend fun insert(loginEntity: LoginEntity)
+    fun insert(loginEntity: LoginEntity)
 
-    @Query(value = "SELECT COUNT(*) from LoginDatabase where userName = :userId")
-    suspend fun checkForUserName(userId: String): Int
+    @Query(value = "SELECT COUNT(*) from LoginDatabase where userName = :userName")
+    suspend fun checkForUserName(userName: String): Int
 
-    @Query(value = "SELECT password from LoginDatabase where userName = :userId")
-    suspend fun retrievePassword(userId: String): String
+    @Query(value = "SELECT password from LoginDatabase where userName = :userName")
+    suspend fun retrievePassword(userName: String): String
 
-    @Query("SELECT * from LoginDatabase")
-    fun getAllAccounts(): LiveData<List<LoginEntity>>
+    @Query("SELECT userId from LoginDatabase where userName= :userName")
+    fun getUserId(userName: String): Int
+
+    @Query("SELECT userName from LoginDatabase where userId= :userId")
+    suspend fun getUsername(userId: Int): String
 
     @Update
     suspend fun update(loginEntity: LoginEntity)

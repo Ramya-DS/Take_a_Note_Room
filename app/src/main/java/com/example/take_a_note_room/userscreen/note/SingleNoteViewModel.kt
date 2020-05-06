@@ -1,10 +1,11 @@
-package com.example.take_a_note_room
+package com.example.take_a_note_room.userscreen.note
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.take_a_note_room.database.NoteRepository
 import com.example.take_a_note_room.database.TakeANote
+import com.example.take_a_note_room.database.NoteClass
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

@@ -1,13 +1,10 @@
 package com.example.take_a_note_room.database
 
 import androidx.lifecycle.LiveData
-import com.example.take_a_note_room.NoteClass
 
 class NoteRepository(private val noteDao: NoteDao) {
 
-    val allNote: LiveData<List<NoteClass>> = noteDao.getAllNotes()
-
-    fun getUserNotes(userId: String): LiveData<List<NoteClass>> {
+    fun getUserNotes(userId: Int): LiveData<List<NoteClass>> {
         return noteDao.getUserNotes(userId)
     }
 
@@ -23,7 +20,7 @@ class NoteRepository(private val noteDao: NoteDao) {
         noteDao.delete(note)
     }
 
-    fun search(search: String, userName: String): List<NoteClass> {
+    fun search(search: String, userName: Int): List<NoteClass> {
         return noteDao.search(search, userName)
     }
 

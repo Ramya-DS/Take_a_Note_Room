@@ -1,6 +1,5 @@
 package com.example.take_a_note_room.login.ui
 
-
 import android.os.Bundle
 import android.text.Editable
 import android.text.SpannableString
@@ -8,17 +7,13 @@ import android.text.Spanned
 import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.take_a_note_room.R
 import com.example.take_a_note_room.login.model.LoginEntity
@@ -28,10 +23,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
-
-/**
- * A simple [Fragment] subclass.
- */
 class SignUpFragment : Fragment() {
 
     companion object {
@@ -46,7 +37,6 @@ class SignUpFragment : Fragment() {
     private lateinit var viewModel: LoginViewModel
     var mOnSuccessListener: OnSuccessListener? = null
     private lateinit var userNameTextLayout: TextInputLayout
-    private lateinit var passwordTextLayout: TextInputLayout
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,11 +49,6 @@ class SignUpFragment : Fragment() {
             ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
         ).get(LoginViewModel::class.java)
 
-        viewModel.allAccounts.observe(this.viewLifecycleOwner, Observer {
-            it.forEach { acc ->
-                Log.d(acc.toString(), " ")
-            }
-        })
         var enable = false
 
         userNameTextLayout = rootView.findViewById(R.id.username_wrapper)
@@ -124,26 +109,25 @@ class SignUpFragment : Fragment() {
         return rootView
     }
 
-    private fun checkForUserName(userId: String, password: String) {
+    private fun checkForUserName(userName: String, password: String) {
         var bool: Boolean
         runBlocking {
             withContext(Dispatchers.IO) {
-                bool = viewModel.checkForUserName(userId)
+                bool = viewModel.checkForUserName(userName)
                 if (bool)
                     activity!!.runOnUiThread {
                         userNameTextLayout.error = "Username already exists"
                     }
                 else {
-                    activity!!.runOnUiThread {
-                        Toast.makeText(context!!, "Account Created", Toast.LENGTH_SHORT).show()
-                        viewModel.insert(LoginEntity(userId, password))
-                        mOnSuccessListener?.onSuccess(userId)
-                    }
+                    viewModel.insert(LoginEntity(userName = userName, password = password))
+                    val userId = viewModel.getUserId(userName)
+                    mOnSuccessListener?.onSuccess(userId)
                 }
             }
         }
 
     }
+
 }
 
 

@@ -1,65 +1,60 @@
 package com.example.take_a_note_room.login.ui
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.example.take_a_note_room.MainActivity
+import com.example.take_a_note_room.userscreen.UserScreenActivity
 import com.example.take_a_note_room.R
 
-
 class LoginActivity : AppCompatActivity(), OnSuccessListener {
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-
         val logInFragment = supportFragmentManager.findFragmentByTag("LOG IN")
         if (logInFragment == null)
             supportFragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.fragment_fade_enter,R.anim.fragment_fade_exit)
-                .replace(R.id.container_login, SigInFragment(), "LOG IN")
+                .setCustomAnimations(R.anim.fragment_fade_enter, R.anim.fragment_fade_exit)
+                .replace(R.id.container_login, SignInFragment.newInstance(), "LOG IN")
                 .commit()
         else
             supportFragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.fragment_fade_enter,R.anim.fragment_fade_exit)
-                .replace(R.id.container_login, logInFragment as SigInFragment, "LOG IN")
+                .setCustomAnimations(R.anim.fragment_fade_enter, R.anim.fragment_fade_exit)
+                .replace(R.id.container_login, logInFragment as SignInFragment, "LOG IN")
                 .commit()
-
 
         restoreFragments()
     }
 
-    private fun updateSharedPreferences(userId: String) {
+    private fun updateSharedPreferences(userId: Int) {
         val sharedPreferences =
             getSharedPreferences(getString(R.string.pref_key), Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
-            this.putString("userId", userId)
-            val bool = this.commit()
-            Log.d("data written", "$bool")
+            this.putInt("userId", userId)
+            this.apply()
+            Log.i("User logged in", "UserID: $userId")
         }
     }
 
-    private fun navigateToUserAccount(userId: String) {
-        val intent = Intent(this, MainActivity::class.java)
+    private fun navigateToUserAccount(userId: Int) {
+        val intent = Intent(this, UserScreenActivity::class.java)
         intent.putExtra("userId", userId)
-        setResult(Activity.RESULT_OK, intent)
+        startActivity(intent)
+        finish()
     }
 
-    override fun onSuccess(userId: String) {
+    override fun onSuccess(userId: Int) {
         updateSharedPreferences(userId)
         navigateToUserAccount(userId)
-        finish()
     }
 
     override fun onAttachFragment(fragment: Fragment) {
         super.onAttachFragment(fragment)
-        if (fragment is SigInFragment)
+        if (fragment is SignInFragment)
             fragment.mOnSuccessListener = this
         else if (fragment is SignUpFragment)
             fragment.mOnSuccessListener = this
@@ -70,16 +65,15 @@ class LoginActivity : AppCompatActivity(), OnSuccessListener {
 
         for (f in fragments) {
             f?.let {
-                if (f is SigInFragment) {
-                    supportFragmentManager.beginTransaction().replace(
-                        R.id.container_login,
-                        f
-                    ).commit()
+                if (f is SignInFragment) {
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.container_login, f)
+                        .commit()
                 } else
-                    supportFragmentManager.beginTransaction().replace(
-                        R.id.container_login,
-                        f
-                    ).addToBackStack(null).commit()
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.container_login, f)
+                        .addToBackStack(null)
+                        .commit()
             }
         }
     }

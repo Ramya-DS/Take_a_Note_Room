@@ -9,15 +9,24 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".login.ui.LoginActivity"></activity>
-        <activity android:name=".NoteActivity" />
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".LauncherActivity"
+            android:theme="@style/LauncherTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".login.ui.LoginActivity"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".userscreen.note.NoteActivity"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".userscreen.UserScreenActivity"
+            android:theme="@style/AppTheme" />
 
         <meta-data
             android:name="preloaded_fonts"

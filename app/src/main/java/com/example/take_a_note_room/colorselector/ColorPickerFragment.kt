@@ -1,4 +1,4 @@
-package com.example.take_a_note_room
+package com.example.take_a_note_room.colorselector
 
 
 import android.os.Bundle
@@ -6,15 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.take_a_note_room.R
 
-/**
- * A simple [Fragment] subclass.
- */
 class ColorPickerFragment : DialogFragment() {
-
 
     companion object {
         fun newInstance() = ColorPickerFragment().apply {
@@ -36,22 +32,20 @@ class ColorPickerFragment : DialogFragment() {
         val colorList = rootView.findViewById<RecyclerView>(R.id.color_recycler)
         colorList.layoutManager = GridLayoutManager(context!!, 3)
         colorList.setHasFixedSize(true)
-        colorList.adapter = ColorAdapter(mOnColorSelectedListener!!)
+        colorList.adapter =
+            ColorAdapter(
+                mOnColorSelectedListener!!
+            )
         return rootView
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        dialog?.window?.attributes?.windowAnimations = R.style.ColorAnimation
+        dialog?.window?.attributes?.windowAnimations =
+            R.style.ColorAnimation
     }
 
     fun setListener(listener: OnColorSelectedListener) {
         mOnColorSelectedListener = listener
     }
-
-//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-//        Log.d("Color", "Inside onActivityResult")
-//        super.onActivityResult(requestCode, resultCode, data)
-//        Log.d("Recycler", "After super function called")
-//    }
 }

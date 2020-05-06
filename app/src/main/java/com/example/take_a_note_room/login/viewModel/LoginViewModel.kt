@@ -2,10 +2,8 @@ package com.example.take_a_note_room.login.viewModel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.example.take_a_note_room.database.TakeANote
-import com.example.take_a_note_room.login.model.LoginDatabase
 import com.example.take_a_note_room.login.model.LoginEntity
 import com.example.take_a_note_room.login.model.LoginRepository
 import kotlinx.coroutines.Dispatchers
@@ -13,20 +11,22 @@ import kotlinx.coroutines.launch
 
 class LoginViewModel(app: Application) : AndroidViewModel(app) {
     private val repository: LoginRepository
-    val allAccounts: LiveData<List<LoginEntity>>
 
     init {
         val loginDao = TakeANote.getDatabase(app, viewModelScope).loginDao()
         repository = LoginRepository(loginDao)
-        allAccounts = repository.allAccount
     }
 
-    fun insert(loginEntity: LoginEntity) = viewModelScope.launch(Dispatchers.IO) {
+    fun insert(loginEntity: LoginEntity) {
         repository.insert(loginEntity)
     }
 
     fun update(loginEntity: LoginEntity) = viewModelScope.launch(Dispatchers.IO) {
         repository.update(loginEntity)
+    }
+
+    fun getUserId(userName: String): Int {
+        return repository.getUserId(userName)
     }
 
     suspend fun checkForUserName(userId: String): Boolean {

@@ -1,4 +1,4 @@
-package com.example.take_a_note_room
+package com.example.take_a_note_room.userscreen.noteslist
 
 
 import android.content.Intent
@@ -8,65 +8,98 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.take_a_note_room.R
+import com.example.take_a_note_room.database.NoteClass
+import com.example.take_a_note_room.database.NoteViewModel
+import com.example.take_a_note_room.userscreen.note.NoteActivity
+import com.example.take_a_note_room.userscreen.utils.OnNoteSelectedListener
+import com.example.take_a_note_room.userscreen.utils.OnRecyclerViewScrollListener
 
-/**
- * A simple [Fragment] subclass.
- */
-class SearchFragment : Fragment(), OnNoteSelectedListener {
+class NotesRecyclerFragment : Fragment(),
+    OnNoteSelectedListener {
 
     companion object {
-        fun newInstance(userId: String): SearchFragment {
-            val fragment = SearchFragment()
+        fun newInstance(search: Boolean, userId: Int): NotesRecyclerFragment {
+            val fragment =
+                NotesRecyclerFragment()
             val bundle = Bundle()
-            bundle.putString("userId", userId)
+            bundle.putBoolean("search", search)
+            bundle.putInt("userId", userId)
             fragment.arguments = bundle
             return fragment
         }
     }
 
-    lateinit var userId: String
+    private lateinit var noteViewModel: NoteViewModel
+    private lateinit var notesRecyclerView: RecyclerView
+    private var search = false
+    private var setAnimations = true
     lateinit var adapter: NotesAdapter
-    lateinit var viewModel: SearchViewModel
-    lateinit var notesRecyclerView: RecyclerView
-    var query: String = ""
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        userId = arguments?.getString("userId")!!
-    }
+    var userId: Int = -1
+    private var mOnRecyclerViewScrollListener: OnRecyclerViewScrollListener? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         savedInstanceState?.let {
-            userId = it.getString("userId")!!
+            setAnimations = it.getBoolean("animation", false)
+            userId = it.getInt("userId")
         }
 
         val rootView = inflater.inflate(R.layout.fragment_notes_recycler, container, false)
         notesRecyclerView = rootView.findViewById(R.id.notes_recycler)
         notesRecyclerView.layoutManager = LinearLayoutManager(context)
+        if (!search && setAnimations) {
+            notesRecyclerView.layoutAnimation =
+                AnimationUtils.loadLayoutAnimation(
+                    context?.applicationContext,
+                    R.anim.recycler_dropdown
+                )
+            setAnimations = false
+        }
 
         ItemTouchHelper(itemTouchHelper).attachToRecyclerView(notesRecyclerView)
 
-        viewModel = ViewModelProvider(
-            this,
-            ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
-        ).get(SearchViewModel::class.java)
-
         notesRecyclerView.setHasFixedSize(true)
-        adapter = NotesAdapter(this)
+        adapter =
+            NotesAdapter(this)
         notesRecyclerView.adapter = adapter
 
+        noteViewModel = ViewModelProvider(
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(activity?.application!!)
+        ).get(NoteViewModel::class.java)
 
 
+        if (!search) {
+            noteViewModel.getUserNotes(userId).observe(viewLifecycleOwner, Observer { notes ->
+                adapter.setNotes(notes)
+            })
+        }
+
+        notesRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (dy > 0) {
+                    mOnRecyclerViewScrollListener?.onRecyclerViewScrolled(true)
+                } else if (dy < 0) {
+                    mOnRecyclerViewScrollListener?.onRecyclerViewScrolled(false)
+                }
+            }
+        })
         return rootView
+
     }
 
     override fun onNoteSelected(note: NoteClass) {
@@ -80,18 +113,14 @@ class SearchFragment : Fragment(), OnNoteSelectedListener {
         startActivity(intent)
     }
 
+
     private val itemTouchHelper =
         object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val note = (viewHolder as NotesAdapter.NoteViewHolder).note
                 note?.let {
-                    viewModel.delete(it)
-                    val notes = mutableListOf<NoteClass>()
-                    notes.addAll(adapter.allNotes)
-                    notes.remove(it)
-                    adapter.setNotes(notes)
-
+                    noteViewModel.delete(it)
                 }
             }
 
@@ -121,8 +150,9 @@ class SearchFragment : Fragment(), OnNoteSelectedListener {
                     actionState,
                     isCurrentlyActive
                 )
-                val background =
-                    ColorDrawable(ContextCompat.getColor(context!!, R.color.colorPrimaryLight))
+                val background = ColorDrawable(getColor(context!!,
+                    R.color.colorPrimaryLight
+                ))
                 background.setBounds(
                     viewHolder.itemView.left,
                     viewHolder.itemView.top + 30,
@@ -130,8 +160,10 @@ class SearchFragment : Fragment(), OnNoteSelectedListener {
                     viewHolder.itemView.bottom - 30
                 )
                 background.draw(c)
-                var iconSize = 0
-                val icon = ContextCompat.getDrawable(context!!, R.drawable.delete_icon)
+                val iconSize: Int
+                val icon = ContextCompat.getDrawable(context!!,
+                    R.drawable.delete_icon
+                )
                 if (icon != null) {
                     iconSize = icon.intrinsicHeight
                     val halfIcon = iconSize / 2
@@ -148,12 +180,20 @@ class SearchFragment : Fragment(), OnNoteSelectedListener {
             }
         }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString("userId", userId)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        search = arguments?.getBoolean("search") ?: false
+        userId = arguments?.getInt("userId")!!
     }
 
-    fun setQueryChange(queryString: String) {
-        query = queryString
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("animation", setAnimations)
+        outState.putInt("userId", userId)
     }
+
+    fun setListener(listener: OnRecyclerViewScrollListener?) {
+        mOnRecyclerViewScrollListener = listener
+    }
+
 }

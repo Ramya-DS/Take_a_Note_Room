@@ -1,4 +1,6 @@
-package com.example.take_a_note_room
+package com.example.take_a_note_room.colorselector
+
+import com.example.take_a_note_room.R
 
 enum class BackgroundColor(val color: Int) {
     COLOR_1(R.color.Color_1),

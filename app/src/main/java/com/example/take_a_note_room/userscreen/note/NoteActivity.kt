@@ -1,4 +1,4 @@
-package com.example.take_a_note_room
+package com.example.take_a_note_room.userscreen.note
 
 import android.os.Bundle
 import android.widget.EditText
@@ -7,6 +7,11 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.example.take_a_note_room.R
+import com.example.take_a_note_room.colorselector.BackgroundColor
+import com.example.take_a_note_room.colorselector.ColorPickerFragment
+import com.example.take_a_note_room.colorselector.OnColorSelectedListener
+import com.example.take_a_note_room.database.NoteClass
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.lang.ref.WeakReference
 
@@ -33,14 +38,16 @@ class NoteActivity : AppCompatActivity(), OnColorSelectedListener {
                 it.getString("title")!!,
                 it.getString("content"),
                 it.getInt("color"),
-                it.getString("userId")!!
+                it.getInt("userId")
             )
-            supportFragmentManager.findFragmentByTag("COLORPICKER")?.let { frag ->
+            add=it.getBoolean("add")
+            supportFragmentManager.findFragmentByTag("COLOR PICKER")?.let { frag ->
                 childFragment = WeakReference(frag as ColorPickerFragment)
             }
         }
         if (savedInstanceState == null)
             getCurrentNote()
+
         initialiseViewModel()
 
         val title: EditText = findViewById(R.id.title)
@@ -54,7 +61,6 @@ class NoteActivity : AppCompatActivity(), OnColorSelectedListener {
 
         noteBottomBar.setOnNavigationItemSelectedListener {
             when (it.itemId) {
-
                 R.id.save -> {
                     currentNote.title = title.text.toString()
                     currentNote.content = content.text.toString()
@@ -70,7 +76,7 @@ class NoteActivity : AppCompatActivity(), OnColorSelectedListener {
                 }
                 R.id.color -> {
                     childFragment = WeakReference(ColorPickerFragment.newInstance())
-                    childFragment!!.get()!!.show(supportFragmentManager, "COLORPICKER")
+                    childFragment!!.get()!!.show(supportFragmentManager, "COLOR PICKER")
                     true
                 }
                 else -> {
@@ -88,7 +94,7 @@ class NoteActivity : AppCompatActivity(), OnColorSelectedListener {
                 it.getStringExtra("title")!!,
                 it.getStringExtra("content"),
                 it.getIntExtra("color", BackgroundColor.random()),
-                it.getStringExtra("userId")!!
+                it.getIntExtra("userId", -1)
             )
         }
 
@@ -124,7 +130,8 @@ class NoteActivity : AppCompatActivity(), OnColorSelectedListener {
             it.putString("title", currentNote.title)
             it.putString("content", currentNote.content)
             it.putInt("color", currentNote.color)
-            it.putString("userId", currentNote.userName)
+            it.putInt("userId", currentNote.userId)
+            it.putBoolean("add",add)
         }
     }
 }

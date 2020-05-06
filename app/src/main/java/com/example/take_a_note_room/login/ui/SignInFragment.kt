@@ -2,9 +2,11 @@ package com.example.take_a_note_room.login.ui
 
 
 import android.os.Bundle
-import android.text.*
+import android.text.Editable
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
-import android.text.style.BackgroundColorSpan
 import android.text.style.ClickableSpan
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +17,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.example.take_a_note_room.ForgotPasswordFragment
 import com.example.take_a_note_room.R
 import com.example.take_a_note_room.login.viewModel.LoginViewModel
 import com.google.android.material.textfield.TextInputLayout
@@ -23,16 +24,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
-/**
- * A simple [Fragment] subclass.
- */
-class SigInFragment : Fragment() {
+class SignInFragment : Fragment() {
 
     companion object {
-        fun newInstance(): SigInFragment {
-            val fragment = SigInFragment()
+        fun newInstance(): SignInFragment {
+            val fragment = SignInFragment()
             fragment.arguments = Bundle()
-
             return fragment
         }
     }
@@ -93,9 +90,27 @@ class SigInFragment : Fragment() {
         val forgotPassword: TextView = rootView.findViewById(R.id.forgot_password)
         forgotPassword.setOnClickListener {
             if (userNameText.text.trim().isNotEmpty()) {
-                val frag = ForgotPasswordFragment.newInstance(userNameText.text.toString())
-                fragmentManager!!.beginTransaction().replace(R.id.container_login, frag)
-                    .addToBackStack("FORGOT PASSWORD").commit()
+                runBlocking {
+                    withContext(Dispatchers.IO) {
+                        if (viewModel.checkForUserName(userNameText.text.trim().toString())) {
+                            activity?.runOnUiThread {
+                                val frag =
+                                    ForgotPasswordFragment.newInstance(userNameText.text.toString())
+                                fragmentManager!!.beginTransaction()
+                                    .replace(R.id.container_login, frag)
+                                    .addToBackStack("FORGOT PASSWORD")
+                                    .commit()
+                            }
+                        } else
+                            activity?.runOnUiThread {
+                                Toast.makeText(
+                                    context!!,
+                                    "Enter a valid username",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                    }
+                }
             } else
                 Toast.makeText(context!!, "Enter username", Toast.LENGTH_SHORT).show()
 
@@ -105,9 +120,10 @@ class SigInFragment : Fragment() {
         val spannableString = SpannableString(signup.text)
         val clickableSpan = object : ClickableSpan() {
             override fun onClick(widget: View) {
+
                 fragmentManager!!.beginTransaction()
-                    .setCustomAnimations(R.anim.fragment_fade_enter,R.anim.fragment_fade_exit)
-                    .replace(R.id.container_login, SignUpFragment(), "SIGN UP")
+                    .setCustomAnimations(R.anim.fragment_fade_enter, R.anim.fragment_fade_exit)
+                    .replace(R.id.container_login, SignUpFragment.newInstance(), "SIGN UP")
                     .addToBackStack(null).commit()
             }
         }
@@ -124,16 +140,18 @@ class SigInFragment : Fragment() {
         return rootView
     }
 
-    private fun authentication(userId: String, password: String) {
+    private fun authentication(userName: String, password: String) {
         runBlocking {
             withContext(Dispatchers.IO) {
-                if (viewModel.checkForUserName(userId)) {
-                    if (viewModel.authentication(userId, password))
+                if (viewModel.checkForUserName(userName)) {
+                    if (viewModel.authentication(userName, password)) {
+                        val userId = viewModel.getUserId(userName)
+                        mOnSuccessListener?.onSuccess(userId)
                         activity!!.runOnUiThread {
-                            Toast.makeText(context!!, "Successful Login", Toast.LENGTH_SHORT).show()
-                            mOnSuccessListener?.onSuccess(userId)
+                            Toast.makeText(context!!, "Successful Login", Toast.LENGTH_SHORT)
+                                .show()
                         }
-                    else
+                    } else
                         activity!!.runOnUiThread {
                             passwordTextLayout.error = "Wrong Password"
                         }
@@ -144,26 +162,6 @@ class SigInFragment : Fragment() {
                 }
 
             }
-        }
-    }
-
-    fun setHighLightedText(tv: TextView, textToHighlight: String) {
-        val tvt = tv.text.toString()
-        var ofe = tvt.indexOf(textToHighlight, 0)
-        val wordToSpan: Spannable = SpannableString(tv.text)
-        var ofs = 0
-        while (ofs < tvt.length && ofe != -1) {
-            ofe = tvt.indexOf(textToHighlight, ofs)
-            if (ofe == -1) break else { // set color here
-                wordToSpan.setSpan(
-                    BackgroundColorSpan(-0x100),
-                    ofe,
-                    ofe + textToHighlight.length,
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-                tv.setText(wordToSpan, TextView.BufferType.SPANNABLE)
-            }
-            ofs = ofe + 1
         }
     }
 }

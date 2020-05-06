@@ -26,7 +26,7 @@
                 android:id="@+id/username_text"
                 style="@style/modifiedEditText"
                 android:freezesText="true"
-                android:hint="@string/login_email_hint"
+                android:hint="@string/username"
                 android:inputType="textEmailAddress"
                 android:maxLines="1" />
         </com.google.android.material.textfield.TextInputLayout>

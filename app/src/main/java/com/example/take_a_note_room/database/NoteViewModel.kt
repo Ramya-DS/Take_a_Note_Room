@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
-import com.example.take_a_note_room.NoteClass
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -12,19 +11,16 @@ class NoteViewModel(app: Application) : AndroidViewModel(app) {
 
     private val repository: NoteRepository
 
-    val allNotes: LiveData<List<NoteClass>>
-
     init {
         val notesDao = TakeANote.getDatabase(app, viewModelScope).noteDao()
         repository = NoteRepository(notesDao)
-        allNotes = repository.allNote
     }
 
     fun delete(note: NoteClass) = viewModelScope.launch(Dispatchers.IO) {
         repository.delete(note)
     }
 
-    fun getUserNotes(userId: String): LiveData<List<NoteClass>>{
+    fun getUserNotes(userId: Int): LiveData<List<NoteClass>> {
         return repository.getUserNotes(userId)
     }
 

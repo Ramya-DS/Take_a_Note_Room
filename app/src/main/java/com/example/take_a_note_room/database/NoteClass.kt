@@ -1,4 +1,4 @@
-package com.example.take_a_note_room
+package com.example.take_a_note_room.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 data class NoteClass(
     @PrimaryKey(autoGenerate = true) val id: Int = 0, var title: String,
     var content: String?,
-    var color: Int, var userName: String
+    var color: Int, var userId: Int
 ) {
     override fun equals(other: Any?): Boolean {
 
@@ -24,6 +24,6 @@ data class NoteClass(
     }
 
     override fun toString(): String {
-        return "$id $title $userName"
+        return "$id $title $userId"
     }
 }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Take_a_Note_Room</string>
+    <string name="app_name">Take a Note</string>
     <string name="enter_the_title_here">Enter the title here..</string>
     <string name="type_here">Type here..</string>
     <string name="search_here">Search here…</string>

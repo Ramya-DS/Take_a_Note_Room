@@ -1,9 +1,9 @@
-package com.example.take_a_note_room
-
+package com.example.take_a_note_room.login.ui
 
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,18 +11,17 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import androidx.lifecycle.ViewModelProvider
+import com.example.take_a_note_room.R
 import com.example.take_a_note_room.login.model.LoginEntity
 import com.example.take_a_note_room.login.viewModel.LoginViewModel
 import com.google.android.material.textfield.TextInputLayout
 
-/**
- * A simple [Fragment] subclass.
- */
 class ForgotPasswordFragment : Fragment() {
 
     companion object {
         fun newInstance(userId: String): ForgotPasswordFragment {
-            val fragment = ForgotPasswordFragment()
+            val fragment =
+                ForgotPasswordFragment()
             val bundle = Bundle()
             bundle.putString("userId", userId)
             fragment.arguments = bundle
@@ -30,12 +29,12 @@ class ForgotPasswordFragment : Fragment() {
         }
     }
 
-    private lateinit var userId: String
-    var enable = false
+    private lateinit var username: String
+    private var enable = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        userId = arguments?.getString("userId")!!
+        username = arguments?.getString("userId")!!
     }
 
     override fun onCreateView(
@@ -80,7 +79,8 @@ class ForgotPasswordFragment : Fragment() {
             if (passwordText.text.toString() != passwordReenter.text.toString()) {
                 passwordReenterLayout.error = "Password doesn't match"
             } else {
-                viewModel.update(LoginEntity(userId, passwordText.text.toString()))
+                viewModel.update(LoginEntity(userName = username, password = passwordText.text.toString()))
+                Log.i("Password Changed", "Username: $username")
                 fragmentManager?.popBackStack()
             }
         }
