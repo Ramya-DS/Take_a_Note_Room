@@ -15,6 +15,9 @@ import com.example.take_a_note_room.R
 import com.example.take_a_note_room.login.model.LoginEntity
 import com.example.take_a_note_room.login.viewModel.LoginViewModel
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 class ForgotPasswordFragment : Fragment() {
 
@@ -79,7 +82,19 @@ class ForgotPasswordFragment : Fragment() {
             if (passwordText.text.toString() != passwordReenter.text.toString()) {
                 passwordReenterLayout.error = "Password doesn't match"
             } else {
-                viewModel.update(LoginEntity(userName = username, password = passwordText.text.toString()))
+                runBlocking {
+                    withContext(Dispatchers.IO) {
+                        val id = viewModel.getUserId(username)
+                        viewModel.update(
+                            LoginEntity(
+                                userId = id,
+                                userName = username,
+                                password = passwordText.text.toString()
+                            )
+                        )
+                    }
+                }
+
                 Log.i("Password Changed", "Username: $username")
                 fragmentManager?.popBackStack()
             }
